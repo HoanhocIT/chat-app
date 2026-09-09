@@ -4,8 +4,8 @@ import { io } from 'socket.io-client';
 import Crypto from './crypto';
 import './App.css';
 
-const API_URL = 'http://localhost:5000';
-const SOCKET_URL = 'http://localhost:5000';
+const API_URL = 'https://chat-app-backend.onrender.com';
+const SOCKET_URL = 'https://chat-app-backend.onrender.com';
 
 const CHAT_COLORS = [
     '#0084FF', '#4CAF50', '#FF5722', '#9C27B0', '#FF9800',
