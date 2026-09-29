@@ -1,9 +1,31 @@
 import { useState } from 'react';
-import { Shield, Key, Copy, Check, X, Lock, CheckCircle2 } from 'lucide-react';
+import {
+  Shield,
+  Key,
+  Copy,
+  Check,
+  X,
+  Lock,
+  CheckCircle2,
+  Eye,
+  EyeOff,
+  Download,
+  Upload,
+  AlertTriangle,
+  FileText
+} from 'lucide-react';
 import { truncateHex } from '../utils/avatar';
+import { useAuth } from '../context/AuthContext';
 
 export default function KeyModal({ isOpen, onClose, user, conversation, privateKey }) {
+  const { importPrivateKey } = useAuth();
   const [copiedKey, setCopiedKey] = useState(false);
+  const [copiedPrivKey, setCopiedPrivKey] = useState(false);
+  const [showPrivateKey, setShowPrivateKey] = useState(false);
+  const [showImportBox, setShowImportBox] = useState(false);
+  const [importInput, setImportInput] = useState('');
+  const [importError, setImportError] = useState('');
+  const [importSuccess, setImportSuccess] = useState(false);
 
   if (!isOpen) return null;
 
@@ -14,7 +36,58 @@ export default function KeyModal({ isOpen, onClose, user, conversation, privateK
     setTimeout(() => setCopiedKey(false), 2000);
   }
 
-  const otherParticipants = conversation?.participants?.filter(p => p._id !== user?._id) || [];
+  function copyPrivateKey() {
+    if (!privateKey) return;
+    navigator.clipboard.writeText(JSON.stringify(privateKey, null, 2));
+    setCopiedPrivKey(true);
+    setTimeout(() => setCopiedPrivKey(false), 2000);
+  }
+
+  function downloadKeyBackup() {
+    if (!privateKey) return;
+    const backupData = {
+      user: user?.username,
+      publicKey: user?.elgamalPublicKey,
+      privateKey: privateKey,
+      exportedAt: new Date().toISOString(),
+      note: 'KHÓA BÍ MẬT ELGAMAL - KHÔNG CHIA SẺ VỚI NGƯỜI KHÁC',
+    };
+    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `elgamal-key-${user?.username || 'user'}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function handleImportSubmit(e) {
+    e.preventDefault();
+    setImportError('');
+    setImportSuccess(false);
+
+    try {
+      const parsed = JSON.parse(importInput.trim());
+      // Cho phép import cả dạng { privateKey: { x, p } } hoặc trực tiếp { x, p }
+      const keyToImport = parsed.privateKey || parsed;
+
+      if (!keyToImport || !keyToImport.x) {
+        throw new Error('Dữ liệu không hợp lệ. Khóa riêng tư phải chứa trường "x"');
+      }
+
+      const ok = importPrivateKey(keyToImport);
+      if (ok) {
+        setImportSuccess(true);
+        setShowImportBox(false);
+        setImportInput('');
+        setTimeout(() => setImportSuccess(false), 3000);
+      }
+    } catch (err) {
+      setImportError('Lỗi định dạng: ' + err.message);
+    }
+  }
+
+  const otherParticipants = conversation?.participants?.filter((p) => p._id !== user?._id) || [];
 
   return (
     <div className="crypto-modal-backdrop" onClick={onClose}>
@@ -25,8 +98,8 @@ export default function KeyModal({ isOpen, onClose, user, conversation, privateK
               <Shield size={18} />
             </div>
             <div>
-              <h3>Thông số bảo mật & Khóa ElGamal</h3>
-              <p>Mã hóa đầu cuối không phụ thuộc máy chủ trung gian</p>
+              <h3>Quản lý khóa & Tham số ElGamal</h3>
+              <p>Mã hóa đầu cuối không phụ thuộc máy chủ trung gian (Zero-Knowledge)</p>
             </div>
           </div>
           <button className="crypto-close-btn" onClick={onClose}>
@@ -35,12 +108,19 @@ export default function KeyModal({ isOpen, onClose, user, conversation, privateK
         </div>
 
         <div className="crypto-modal-body">
-          {/* User's own key status */}
+          {importSuccess && (
+            <div className="crypto-alert-banner success">
+              <CheckCircle2 size={16} />
+              <span>Đã nhập và khôi phục khóa bí mật thành công! Các tin nhắn cũ sẽ được giải mã.</span>
+            </div>
+          )}
+
+          {/* User's own public key */}
           <div className="crypto-card">
             <div className="crypto-card-head">
               <div className="flex-center gap-2">
                 <Key size={15} className="text-cyan" />
-                <strong>Khóa công khai của bạn ({user?.username})</strong>
+                <strong>Khóa công khai (Public Key của {user?.username})</strong>
               </div>
               <button className="crypto-copy-btn mini" onClick={copyPublicKey}>
                 {copiedKey ? <Check size={12} className="text-emerald" /> : <Copy size={12} />}
@@ -48,7 +128,7 @@ export default function KeyModal({ isOpen, onClose, user, conversation, privateK
               </button>
             </div>
             <p className="crypto-hint mb-2">
-              Khóa này được công khai trên máy chủ để người khác mã hóa tin nhắn gửi cho bạn:
+              Khóa này được lưu công khai trên máy chủ để người khác mã hóa tin nhắn gửi cho bạn:
             </p>
             <div className="crypto-param-grid">
               <div className="crypto-param-item">
@@ -66,27 +146,99 @@ export default function KeyModal({ isOpen, onClose, user, conversation, privateK
             </div>
           </div>
 
-          {/* Private Key Status */}
+          {/* Private Key Status & Management */}
           <div className="crypto-card key-private-card">
             <div className="crypto-card-head">
               <div className="flex-center gap-2">
                 <Lock size={15} className={privateKey ? 'text-emerald' : 'text-amber'} />
-                <strong>Trạng thái Khóa bí mật (Private Key x)</strong>
+                <strong>Khóa bí mật (Private Key x)</strong>
               </div>
               <span className={`crypto-status-pill ${privateKey ? 'status-valid' : 'status-invalid'}`}>
                 {privateKey ? '✓ Đang sẵn sàng' : '⚠ Chưa tìm thấy khóa'}
               </span>
             </div>
-            <p className="crypto-hint">
+
+            <p className="crypto-hint mb-2">
               {privateKey ? (
                 <>
                   <CheckCircle2 size={13} className="text-emerald inline-icon" /> Khóa bí mật <code>x</code> được lưu cục bộ trên thiết bị của bạn. 
                   Máy chủ không bao giờ biết khóa này (Zero-Knowledge Architecture).
                 </>
               ) : (
-                'Khóa bí mật không tồn tại trên trình duyệt này. Bạn cần sử dụng thiết bị ban đầu đã đăng ký để giải mã tin nhắn cũ.'
+                'Khóa bí mật chưa có trên trình duyệt này (do đăng nhập từ máy mới hoặc xóa cookie). Hãy nhập khóa đã sao lưu để giải mã tin nhắn.'
               )}
             </p>
+
+            {privateKey && (
+              <div className="key-action-bar">
+                <button
+                  className="crypto-btn-sm"
+                  onClick={() => setShowPrivateKey(!showPrivateKey)}
+                >
+                  {showPrivateKey ? <EyeOff size={13} /> : <Eye size={13} />}
+                  <span>{showPrivateKey ? 'Ẩn khóa bí mật' : 'Xem số x'}</span>
+                </button>
+                <button className="crypto-btn-sm" onClick={copyPrivateKey}>
+                  {copiedPrivKey ? <Check size={13} className="text-emerald" /> : <Copy size={13} />}
+                  <span>{copiedPrivKey ? 'Đã sao chép x' : 'Copy khóa x'}</span>
+                </button>
+                <button className="crypto-btn-sm highlight" onClick={downloadKeyBackup} title="Tải file sao lưu khóa để chuyển sang máy khác">
+                  <Download size={13} />
+                  <span>Sao lưu ra file (.json)</span>
+                </button>
+              </div>
+            )}
+
+            {showPrivateKey && privateKey && (
+              <div className="private-key-display-box mt-2">
+                <div className="text-xs text-amber font-semibold mb-1">
+                  ⚠️ CẢNH BÁO: Không chia sẻ chuỗi bí mật x này cho bất kỳ ai!
+                </div>
+                <code className="text-break block text-xs font-mono p-2 bg-dark rounded">
+                  {typeof privateKey.x === 'string' ? privateKey.x : JSON.stringify(privateKey.x)}
+                </code>
+              </div>
+            )}
+
+            {/* Khôi phục / Nhập khóa từ thiết bị khác */}
+            <div className="mt-3 pt-2 border-t border-subtle">
+              <button
+                className="crypto-link-btn"
+                onClick={() => setShowImportBox(!showImportBox)}
+              >
+                <Upload size={13} />
+                <span>{showImportBox ? 'Đóng ô nhập khóa' : 'Khôi phục / Nhập khóa từ thiết bị khác (Import Key)'}</span>
+              </button>
+
+              {showImportBox && (
+                <form onSubmit={handleImportSubmit} className="import-key-form mt-2">
+                  <textarea
+                    className="import-textarea"
+                    rows={3}
+                    placeholder='Dán chuỗi JSON khóa riêng tư (ví dụ: {"x": "..."} hoặc nội dung file backup)'
+                    value={importInput}
+                    onChange={(e) => setImportInput(e.target.value)}
+                  />
+                  {importError && (
+                    <div className="text-xs text-rose-400 mt-1 flex-center gap-1">
+                      <AlertTriangle size={13} /> {importError}
+                    </div>
+                  )}
+                  <div className="flex-end gap-2 mt-2">
+                    <button
+                      type="button"
+                      className="crypto-btn-sm"
+                      onClick={() => setShowImportBox(false)}
+                    >
+                      Hủy
+                    </button>
+                    <button type="submit" className="crypto-btn-sm primary">
+                      Xác nhận nạp khóa
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
           </div>
 
           {/* Other participants' keys */}

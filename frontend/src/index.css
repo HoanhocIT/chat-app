@@ -2138,3 +2138,177 @@ button {
   color: var(--cyan-neon);
   border-color: var(--border-cyan);
 }
+
+/* ==========================================================================
+   KEY MODAL & BENCHMARK / OVERHEAD EVALUATION STYLES
+   ========================================================================== */
+.key-action-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.crypto-btn-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+.crypto-btn-sm:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--border-light);
+}
+.crypto-btn-sm.highlight {
+  background: rgba(0, 242, 254, 0.12);
+  border-color: var(--border-cyan);
+  color: var(--cyan-neon);
+}
+.crypto-btn-sm.primary {
+  background: var(--theme-gradient, linear-gradient(135deg, #00f2fe 0%, #0891b2 100%));
+  color: #05141f;
+  font-weight: 600;
+  border: none;
+}
+.crypto-link-btn {
+  background: none;
+  border: none;
+  color: var(--cyan-neon);
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+.crypto-link-btn:hover {
+  text-decoration: underline;
+}
+.import-textarea {
+  width: 100%;
+  background: #090d16;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-main);
+  resize: vertical;
+}
+.import-textarea:focus {
+  border-color: var(--cyan-neon);
+  outline: none;
+}
+.crypto-alert-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+}
+.crypto-alert-banner.success {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #6ee7b7;
+}
+
+/* BENCHMARK & EVALUATION STYLES */
+.bench-grid-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+@media (max-width: 640px) {
+  .bench-grid-summary {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.bench-metric-card {
+  background: #090d16;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.bench-metric-title {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+.bench-metric-val {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--cyan-neon);
+}
+.bench-metric-sub {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.overhead-breakdown-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.overhead-chip {
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  font-family: var(--font-mono);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
+}
+.overhead-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.crypto-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-subtle);
+}
+.crypto-eval-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.crypto-eval-table th {
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+  text-align: left;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-weight: 600;
+}
+.crypto-eval-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  line-height: 1.4;
+}
+.crypto-eval-table tr:last-child td {
+  border-bottom: none;
+}
+.crypto-eval-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+

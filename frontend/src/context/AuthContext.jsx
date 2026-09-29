@@ -72,6 +72,13 @@ export function AuthProvider({ children }) {
     return data.user;
   }
 
+  function importPrivateKey(keyObj) {
+    if (!user) return false;
+    savePrivateKey(user._id, keyObj);
+    setPrivateKey(keyObj);
+    return true;
+  }
+
   function logout() {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -81,7 +88,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, privateKey, loading, register, login, logout }}>
+    <AuthContext.Provider value={{ user, privateKey, loading, register, login, logout, importPrivateKey }}>
       {children}
     </AuthContext.Provider>
   );
