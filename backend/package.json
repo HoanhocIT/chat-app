@@ -1,0 +1,20 @@
+{
+  "name": "chat-app-backend",
+  "version": "1.0.0",
+  "description": "Backend cho chat app - mã hóa ElGamal + AES, chữ ký số ElGamal, băm SHA-256/MD5",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js",
+    "dev": "node --watch src/app.js",
+    "demo:crypto": "node src/crypto/demo.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "mongoose": "^8.5.0",
+    "jsonwebtoken": "^9.0.2",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
+    "cors": "^2.8.5"
+  }
+}
