@@ -3,6 +3,8 @@ const Message = require('../models/Message');
 const Conversation = require('../models/Conversation');
 const User = require('../models/User');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'chat-app-secret-fallback-jwt-token-production-2026';
+
 /**
  * Middleware xác thực cho socket: client phải gửi JWT qua `socket.handshake.auth.token`.
  */
@@ -11,7 +13,7 @@ function socketAuthMiddleware(socket, next) {
   if (!token) return next(new Error('Thiếu token xác thực'));
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const payload = jwt.verify(token, JWT_SECRET);
     socket.userId = payload.userId;
     next();
   } catch {

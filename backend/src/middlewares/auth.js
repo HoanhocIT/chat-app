@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'chat-app-secret-fallback-jwt-token-production-2026';
+
 /** Kiểm tra JWT trong header Authorization: Bearer <token> */
 function requireAuth(req, res, next) {
   const authHeader = req.headers.authorization || '';
@@ -10,7 +12,7 @@ function requireAuth(req, res, next) {
   }
 
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    const payload = jwt.verify(token, JWT_SECRET);
     req.userId = payload.userId;
     next();
   } catch (err) {

@@ -2,8 +2,10 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
+const JWT_SECRET = process.env.JWT_SECRET || 'chat-app-secret-fallback-jwt-token-production-2026';
+
 function signToken(userId) {
-  return jwt.sign({ userId }, process.env.JWT_SECRET, {
+  return jwt.sign({ userId }, JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   });
 }
@@ -46,8 +48,8 @@ async function register(req, res) {
     const token = signToken(user._id);
     res.status(201).json({ token, user: user.toSafeJSON() });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Lỗi server khi đăng ký' });
+    console.error('❌ Lỗi khi đăng ký:', err);
+    res.status(500).json({ error: 'Lỗi server khi đăng ký: ' + (err.message || 'Lỗi không xác định') });
   }
 }
 
@@ -76,8 +78,8 @@ async function login(req, res) {
     const token = signToken(user._id);
     res.json({ token, user: user.toSafeJSON() });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Lỗi server khi đăng nhập' });
+    console.error('❌ Lỗi khi đăng nhập:', err);
+    res.status(500).json({ error: 'Lỗi server khi đăng nhập: ' + (err.message || 'Lỗi không xác định') });
   }
 }
 
