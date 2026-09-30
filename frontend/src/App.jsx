@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Register from './pages/Register';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import Chat from './pages/Chat';
 
 function PrivateRoute({ children }) {
@@ -18,6 +19,7 @@ function Routing() {
     <Routes>
       <Route path="/register" element={user ? <Navigate to="/chat" /> : <Register />} />
       <Route path="/login" element={user ? <Navigate to="/chat" /> : <Login />} />
+      <Route path="/forgot-password" element={user ? <Navigate to="/chat" /> : <ForgotPassword />} />
       <Route
         path="/chat"
         element={

@@ -83,4 +83,83 @@ async function login(req, res) {
   }
 }
 
-module.exports = { register, login };
+/** POST /api/auth/forgot-password */
+async function forgotPassword(req, res) {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ error: 'Vui lòng cung cấp địa chỉ email' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    if (!user) {
+      return res.status(404).json({ error: 'Không tìm thấy tài khoản với email này' });
+    }
+
+    // Sinh mã OTP 6 chữ số ngẫu nhiên
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiryTime = new Date(Date.now() + 15 * 60 * 1000); // 15 phút
+
+    user.resetPasswordOTP = otpCode;
+    user.resetPasswordExpires = expiryTime;
+    await user.save();
+
+    const { sendResetPasswordEmail } = require('../utils/mailer');
+    const mailResult = await sendResetPasswordEmail(user.email, user.username, otpCode);
+
+    res.json({
+      ok: true,
+      message: mailResult.simulated
+        ? `Mã OTP đã được tạo (Mô phỏng: ${otpCode})`
+        : `Mã OTP xác thực đã được gửi tới email ${user.email}. Vui lòng kiểm tra hộp thư!`,
+      simulated: mailResult.simulated,
+      demoOtp: mailResult.simulated ? otpCode : undefined,
+    });
+  } catch (err) {
+    console.error('❌ Lỗi khi gửi OTP quên mật khẩu:', err);
+    res.status(500).json({ error: 'Lỗi server khi gửi email đặt lại mật khẩu: ' + err.message });
+  }
+}
+
+/** POST /api/auth/reset-password */
+async function resetPassword(req, res) {
+  try {
+    const { email, otp, newPassword } = req.body;
+    if (!email || !otp || !newPassword) {
+      return res.status(400).json({ error: 'Thiếu thông tin bắt buộc (email, OTP, mật khẩu mới)' });
+    }
+    if (newPassword.length < 8) {
+      return res.status(400).json({ error: 'Mật khẩu mới phải có ít nhất 8 ký tự' });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
+    if (!user) {
+      return res.status(404).json({ error: 'Không tìm thấy tài khoản' });
+    }
+
+    if (!user.resetPasswordOTP || user.resetPasswordOTP !== otp.trim()) {
+      return res.status(400).json({ error: 'Mã OTP không chính xác' });
+    }
+
+    if (!user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
+      return res.status(400).json({ error: 'Mã OTP đã hết hạn. Vui lòng yêu cầu mã mới.' });
+    }
+
+    // Băm mật khẩu mới bằng bcrypt
+    const passwordHash = await bcrypt.hash(newPassword, 12);
+    user.passwordHash = passwordHash;
+    user.resetPasswordOTP = null;
+    user.resetPasswordExpires = null;
+    await user.save();
+
+    res.json({
+      ok: true,
+      message: 'Đặt lại mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.',
+    });
+  } catch (err) {
+    console.error('❌ Lỗi khi đặt lại mật khẩu:', err);
+    res.status(500).json({ error: 'Lỗi server khi đặt lại mật khẩu: ' + err.message });
+  }
+}
+
+module.exports = { register, login, forgotPassword, resetPassword };

@@ -109,7 +109,12 @@ export default function Login() {
             </div>
 
             <div className="input-field-group">
-              <label htmlFor="password">Mật khẩu</label>
+              <div className="flex-between mb-1">
+                <label htmlFor="password">Mật khẩu</label>
+                <Link to="/forgot-password" className="text-xs text-cyan hover:underline">
+                  Quên mật khẩu?
+                </Link>
+              </div>
               <div className="input-with-icon">
                 <Lock size={18} className="field-icon-left" />
                 <input
