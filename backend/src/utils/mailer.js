@@ -1,24 +1,27 @@
 const nodemailer = require('nodemailer');
 
 /**
- * Cấu hình gửi mail (Hỗ trợ Gmail, Outlook, SMTP server bất kỳ)
- * Nếu chưa cấu hình EMAIL_USER và EMAIL_PASS, hệ thống sẽ in OTP ra console
- * và trả về kết quả giả lập để kiểm thử ngay mà không bị gián đoạn.
+ * Cấu hình gửi mail tối ưu cho Gmail trên môi trường Cloud (Render, VPS)
+ * - Tự động xóa khoảng trắng nếu người dùng copy mã 16 chữ cái dạng "abcd efgh ijkl mnop"
+ * - Sử dụng cổng 465 (SSL trực tiếp) để tránh bị chặn port 587 trên Cloud
+ * - Đặt giới hạn timeout (10s) để không bao giờ bị treo vĩnh viễn
  */
 function createTransporter() {
-  const user = process.env.EMAIL_USER;
-  const pass = process.env.EMAIL_PASS;
+  const user = (process.env.EMAIL_USER || '').trim();
+  const pass = (process.env.EMAIL_PASS || '').replace(/\s+/g, '');
 
   if (!user || !pass) {
     return null;
   }
 
   return nodemailer.createTransport({
-    service: process.env.EMAIL_SERVICE || 'gmail',
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.EMAIL_PORT, 10) || 587,
-    secure: process.env.EMAIL_SECURE === 'true', // true cho 465, false cho 587
+    port: parseInt(process.env.EMAIL_PORT, 10) || 465,
+    secure: true, // SSL trực tiếp trên 465
     auth: { user, pass },
+    connectionTimeout: 10000, // 10 giây timeout
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
   });
 }
 
@@ -60,7 +63,7 @@ async function sendResetPasswordEmail(toEmail, username, otpCode) {
 
   if (!transporter) {
     console.log('----------------------------------------------------');
-    console.log(`📧 [GIẢ LẬP GỬI EMAIL - CHƯA CÓ EMAIL_USER TRONG .ENV]`);
+    console.log(`📧 [GIẢ LẬP GỬI EMAIL - CHƯA CÓ EMAIL_USER HOẶC EMAIL_PASS]`);
     console.log(`👉 Người nhận: ${toEmail} (${username})`);
     console.log(`👉 MÃ OTP ĐẶT LẠI MẬT KHẨU: [ ${otpCode} ] (Hết hạn sau 15 phút)`);
     console.log('----------------------------------------------------');
@@ -68,20 +71,32 @@ async function sendResetPasswordEmail(toEmail, username, otpCode) {
       sent: true,
       simulated: true,
       otp: otpCode,
-      message: 'Mã xác nhận đã được tạo (Chế độ mô phỏng - Xem tại console server)',
+      message: 'Mã xác nhận đã được tạo (Chế độ mô phỏng - Chưa cài EMAIL_USER)',
     };
   }
 
+  const cleanUser = (process.env.EMAIL_USER || '').trim();
   const mailOptions = {
-    from: `"Chat-app Bảo Mật" <${process.env.EMAIL_USER}>`,
+    from: `"Chat-app Bảo Mật" <${cleanUser}>`,
     to: toEmail,
     subject: `[Chat-app] Mã OTP đặt lại mật khẩu: ${otpCode}`,
     html: htmlContent,
   };
 
-  await transporter.sendMail(mailOptions);
-  console.log(`✅ Đã gửi email thực tế chứa OTP tới: ${toEmail}`);
-  return { sent: true, simulated: false };
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`✅ Đã gửi email thực tế chứa OTP tới: ${toEmail}`);
+    return { sent: true, simulated: false };
+  } catch (err) {
+    console.error('❌ Lỗi khi gửi email qua SMTP:', err.message);
+    // Tự động chuyển về chế độ dự phòng nếu gửi thất bại (sai pass hoặc bị chặn) để người dùng không bị kẹt
+    return {
+      sent: true,
+      simulated: true,
+      otp: otpCode,
+      warning: 'Không thể kết nối máy chủ gửi thư (' + err.message + ')',
+    };
+  }
 }
 
 module.exports = { sendResetPasswordEmail };

@@ -110,7 +110,7 @@ async function forgotPassword(req, res) {
     res.json({
       ok: true,
       message: mailResult.simulated
-        ? `Mã OTP đã được tạo (Mô phỏng: ${otpCode})`
+        ? (mailResult.warning ? `Lưu ý: ${mailResult.warning}` : `Mã OTP đã được tạo (Mô phỏng: ${otpCode})`)
         : `Mã OTP xác thực đã được gửi tới email ${user.email}. Vui lòng kiểm tra hộp thư!`,
       simulated: mailResult.simulated,
       demoOtp: mailResult.simulated ? otpCode : undefined,

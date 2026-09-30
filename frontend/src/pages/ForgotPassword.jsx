@@ -37,7 +37,7 @@ export default function ForgotPassword() {
     setLoading(true);
 
     try {
-      const { data } = await http.post('/auth/forgot-password', { email });
+      const { data } = await http.post('/auth/forgot-password', { email }, { timeout: 15000 });
       setSuccessMsg(data.message || 'Mã xác nhận đã được gửi!');
       if (data.demoOtp) {
         setDemoOtp(data.demoOtp);
@@ -45,7 +45,11 @@ export default function ForgotPassword() {
       }
       setStep(2);
     } catch (err) {
-      setError(err.response?.data?.error || 'Không thể gửi email đặt lại mật khẩu. Vui lòng thử lại sau.');
+      if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+        setError('Quá thời gian kết nối (Timeout). Vui lòng thử lại.');
+      } else {
+        setError(err.response?.data?.error || 'Không thể gửi email đặt lại mật khẩu. Vui lòng thử lại sau.');
+      }
     } finally {
       setLoading(false);
     }
