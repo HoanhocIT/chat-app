@@ -51,7 +51,7 @@ function encrypt(message, publicKeyRaw) {
 
     let k;
     do {
-      k = 1n + (randomBigInt(64) % (p - 2n));
+      k = 1n + (randomBigInt(256) % (p - 2n));
     } while (gcd(k, p - 1n) !== 1n);
 
     const c1 = modPow(g, k, p);

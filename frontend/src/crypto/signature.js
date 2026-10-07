@@ -16,16 +16,17 @@ export async function sign(message, privateKeyRaw) {
   const hashHex = await sha256(message);
   const hash = BigInt('0x' + hashHex) % (p - 1n);
 
-  let k, r;
+  let k, r, s;
   do {
     do {
-      k = 1n + (randomBigInt(64) % (p - 2n));
+      k = 1n + (randomBigInt(256) % (p - 2n));
     } while (gcd(k, p - 1n) !== 1n);
     r = modPow(g, k, p);
-  } while (r === 0n);
+    if (r === 0n) continue;
 
-  const kInv = modInverse(k, p - 1n);
-  const s = (kInv * (((hash - x * r) % (p - 1n)) + (p - 1n))) % (p - 1n);
+    const kInv = modInverse(k, p - 1n);
+    s = (kInv * (((hash - x * r) % (p - 1n)) + (p - 1n))) % (p - 1n);
+  } while (r === 0n || s === 0n);
 
   return { r: r.toString(), s: s.toString() };
 }
@@ -37,7 +38,8 @@ export async function verify(message, signature, publicKeyRaw) {
   const r = BigInt(signature.r);
   const s = BigInt(signature.s);
 
-  if (r <= 0n || r >= p) return false;
+  // Kiểm tra tính hợp lệ của cặp chữ ký (r, s) theo chuẩn ElGamal
+  if (r <= 0n || r >= p || s <= 0n || s >= (p - 1n)) return false;
 
   const hashHex = await sha256(message);
   const hash = BigInt('0x' + hashHex) % (p - 1n);

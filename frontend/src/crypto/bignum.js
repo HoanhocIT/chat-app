@@ -61,7 +61,7 @@ export function generateSafePrime(bits) {
 
 export function findGenerator(p, q) {
   while (true) {
-    const g = 2n + (randomBigInt(64) % (p - 3n));
+    const g = 2n + (randomBigInt(256) % (p - 3n));
     if (modPow(g, 2n, p) === 1n) continue;
     if (modPow(g, q, p) === 1n) continue;
     return g;
