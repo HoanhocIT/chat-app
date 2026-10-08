@@ -1,5 +1,5 @@
 /* ===== CIPHER CHAT — HỆ THỐNG GIAO DIỆN HIỆN ĐẠI (CYBER DARK) ===== */
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+/* Fonts loaded via preconnect in index.html for high performance */
 
 :root {
   --bg-deep: #07090e;
@@ -116,15 +116,6 @@ button {
   background: var(--bg-deep);
 }
 
-@media (max-width: 900px) {
-  .auth-split-screen {
-    grid-template-columns: 1fr;
-  }
-  .auth-brand-pane {
-    display: none;
-  }
-}
-
 .auth-brand-pane {
   position: relative;
   background: radial-gradient(circle at 10% 20%, #151d2f 0%, #0a0e18 90%);
@@ -134,6 +125,15 @@ button {
   flex-direction: column;
   justify-content: space-between;
   overflow: hidden;
+}
+
+@media (max-width: 900px) {
+  .auth-split-screen {
+    grid-template-columns: 1fr;
+  }
+  .auth-brand-pane {
+    display: none;
+  }
 }
 
 .auth-brand-glow-orb {
