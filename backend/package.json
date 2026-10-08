@@ -6,7 +6,13 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "node --watch src/app.js",
-    "demo:crypto": "node src/crypto/demo.js"
+    "demo:crypto": "node src/crypto/demo.js",
+    "test:crypto": "node src/crypto/cli-crypto.js",
+    "test:aes": "node src/crypto/cli-crypto.js 1",
+    "test:elgamal": "node src/crypto/cli-crypto.js 2",
+    "test:signature": "node src/crypto/cli-crypto.js 3",
+    "test:hash": "node src/crypto/cli-crypto.js 4",
+    "test:hybrid": "node src/crypto/cli-crypto.js 5"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
