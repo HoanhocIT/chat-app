@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenCreateGroup }) {
-  const [activeTab, setActiveTab] = useState('received'); // 'received' | 'friends' | 'find' | 'sent'
+  const [activeTab, setActiveTab] = useState('find'); // 'find' | 'received' | 'friends' | 'sent'
   const [receivedRequests, setReceivedRequests] = useState([]);
   const [sentRequests, setSentRequests] = useState([]);
   const [friendsList, setFriendsList] = useState([]);
@@ -178,8 +178,20 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
           )}
         </div>
 
-        {/* 4 Tabs */}
+        {/* 4 Tabs - Người dùng & Kết bạn là trang thứ nhất */}
         <div className="friend-hub-nav-tabs">
+          <button
+            type="button"
+            className={`hub-tab-btn ${activeTab === 'find' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('find');
+              fetchUsers(searchQuery);
+            }}
+          >
+            <UserPlus size={15} />
+            <span>Người dùng & Kết bạn ({searchResults.length})</span>
+          </button>
+
           <button
             type="button"
             className={`hub-tab-btn ${activeTab === 'received' ? 'active' : ''}`}
@@ -202,18 +214,6 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
           >
             <UserCheck size={15} />
             <span>Danh sách bạn bè ({friendsList.length})</span>
-          </button>
-
-          <button
-            type="button"
-            className={`hub-tab-btn ${activeTab === 'find' ? 'active' : ''}`}
-            onClick={() => {
-              setActiveTab('find');
-              fetchUsers(searchQuery);
-            }}
-          >
-            <UserPlus size={15} />
-            <span>Người dùng & Kết bạn ({searchResults.length})</span>
           </button>
 
           <button
