@@ -5,12 +5,12 @@ import BrandPanel from '../components/BrandPanel';
 import BackendConfigModal from '../components/BackendConfigModal';
 import { getApiUrl } from '../api/http';
 import http from '../api/http';
-import { User, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, AlertCircle, Server } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ShieldCheck, AlertCircle, Server } from 'lucide-react';
 
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ username: '', password: '' });
+  const [form, setForm] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -94,14 +94,15 @@ export default function Login() {
 
           <form className="auth-form-body" onSubmit={handleSubmit}>
             <div className="input-field-group">
-              <label htmlFor="username">Tên đăng nhập</label>
+              <label htmlFor="email">Địa chỉ Email</label>
               <div className="input-with-icon">
-                <User size={18} className="field-icon-left" />
+                <Mail size={18} className="field-icon-left" />
                 <input
-                  id="username"
-                  value={form.username}
-                  onChange={(e) => setForm({ ...form, username: e.target.value })}
-                  placeholder="Nhập username của bạn..."
+                  id="email"
+                  type="email"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  placeholder="Nhập địa chỉ email của bạn..."
                   required
                   autoFocus
                 />

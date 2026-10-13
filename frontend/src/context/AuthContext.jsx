@@ -39,7 +39,12 @@ export function AuthProvider({ children }) {
     setLoading(false);
   }, []);
 
-  async function register({ username, email, password }) {
+  async function sendRegisterOtp({ email, username }) {
+    const { data } = await http.post('/auth/send-register-otp', { email, username });
+    return data;
+  }
+
+  async function register({ username, email, password, otp }) {
     // Sinh cặp khóa ElGamal NGAY TRÊN TRÌNH DUYỆT trước khi gửi gì lên server
     const { publicKey, privateKey: newPrivateKey } = elgamal.generateKeyPair(256);
 
@@ -47,6 +52,7 @@ export function AuthProvider({ children }) {
       username,
       email,
       password,
+      otp,
       elgamalPublicKey: publicKey,
     });
 
@@ -60,8 +66,8 @@ export function AuthProvider({ children }) {
     return data.user;
   }
 
-  async function login({ username, password }) {
-    const { data } = await http.post('/auth/login', { username, password });
+  async function login({ email, username, password }) {
+    const { data } = await http.post('/auth/login', { email, username, password });
 
     localStorage.setItem('token', data.token);
     localStorage.setItem('user', JSON.stringify(data.user));
@@ -88,7 +94,7 @@ export function AuthProvider({ children }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, privateKey, loading, register, login, logout, importPrivateKey }}>
+    <AuthContext.Provider value={{ user, privateKey, loading, register, sendRegisterOtp, login, logout, importPrivateKey }}>
       {children}
     </AuthContext.Provider>
   );
