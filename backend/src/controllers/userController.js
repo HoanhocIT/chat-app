@@ -81,14 +81,48 @@ async function getPublicKey(req, res) {
   });
 }
 
-/** GET /api/users/me/conversations — danh sách hội thoại của user hiện tại */
+/** GET /api/users/me/conversations — danh sách hội thoại của user hiện tại (tự động khử trùng lặp) */
 async function myConversations(req, res) {
-  const conversations = await Conversation.find({ participants: req.userId })
-    .populate('participants', 'username avatarUrl status elgamalPublicKey')
-    .populate('lastMessage')
-    .sort({ lastMessageAt: -1 });
+  try {
+    const conversations = await Conversation.find({ participants: req.userId })
+      .populate('participants', 'username avatarUrl status elgamalPublicKey')
+      .populate('lastMessage')
+      .sort({ lastMessageAt: -1 });
 
-  res.json(conversations);
+    const uniqueConversations = [];
+    const seenPrivatePartners = new Set();
+    const duplicateIdsToDelete = [];
+
+    for (const conv of conversations) {
+      if (conv.type === 'private') {
+        const other = conv.participants.find(
+          (p) => p && p._id && p._id.toString() !== req.userId.toString()
+        );
+        if (other) {
+          const partnerId = other._id.toString();
+          if (seenPrivatePartners.has(partnerId)) {
+            duplicateIdsToDelete.push(conv._id);
+            continue;
+          }
+          seenPrivatePartners.add(partnerId);
+        }
+      }
+      uniqueConversations.push(conv);
+    }
+
+    // Dọn dẹp ngầm các bản ghi cuộc hội thoại trùng lặp trong database
+    if (duplicateIdsToDelete.length > 0) {
+      Conversation.deleteMany({ _id: { $in: duplicateIdsToDelete } }).catch((err) =>
+        console.error('Lỗi dọn dẹp conversation trùng lặp:', err)
+      );
+    }
+
+    res.json(uniqueConversations);
+  } catch (err) {
+    console.error('Lỗi lấy danh sách hội thoại:', err);
+    res.status(500).json({ error: 'Lỗi server khi lấy danh sách hội thoại' });
+  }
 }
 
 module.exports = { searchUsers, getPublicKey, myConversations };
+

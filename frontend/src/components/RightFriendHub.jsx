@@ -15,7 +15,8 @@ import {
   Clock,
   Search,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  UserMinus,
 } from 'lucide-react';
 
 export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenCreateGroup }) {
@@ -89,6 +90,7 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
     socket?.on('friend_request_accepted', handleAccepted);
     socket?.on('friend_request_rejected', handleRejected);
     socket?.on('friendship_status_changed', handleFriendshipChanged);
+    socket?.on('friend_removed', handleFriendshipChanged);
 
     return () => {
       socket?.off('new_user_registered', handleNewUser);
@@ -97,6 +99,7 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
       socket?.off('friend_request_accepted', handleAccepted);
       socket?.off('friend_request_rejected', handleRejected);
       socket?.off('friendship_status_changed', handleFriendshipChanged);
+      socket?.off('friend_removed', handleFriendshipChanged);
     };
   }, [searchQuery]);
 
@@ -129,6 +132,23 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
       setReceivedRequests((prev) => prev.filter((r) => r._id !== reqId));
     } catch (err) {
       alert(err.response?.data?.error || 'Lỗi từ chối kết bạn');
+    } finally {
+      setActionLoadingId(null);
+    }
+  }
+
+  async function handleUnfriend(friendId, friendName) {
+    if (!window.confirm(`Bạn có chắc chắn muốn hủy kết bạn với "${friendName}" không?`)) {
+      return;
+    }
+    setActionLoadingId(friendId);
+    try {
+      await http.delete(`/friends/${friendId}`);
+      showNotification(`Đã hủy kết bạn với ${friendName}`);
+      await loadData();
+      fetchUsers(searchQuery);
+    } catch (err) {
+      alert(err.response?.data?.error || 'Lỗi khi hủy kết bạn');
     } finally {
       setActionLoadingId(null);
     }
@@ -364,6 +384,17 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
                         <MessageSquare size={14} className="text-cyan" />
                         <span>Nhắn tin</span>
                       </button>
+                      <button
+                        type="button"
+                        className="btn-friend-reject"
+                        onClick={() => handleUnfriend(f._id, f.username)}
+                        disabled={actionLoadingId === f._id}
+                        title={`Hủy kết bạn với ${f.username}`}
+                        style={{ padding: '6px 10px', fontSize: '12px' }}
+                      >
+                        <UserMinus size={14} />
+                        <span>Hủy bạn</span>
+                      </button>
                     </div>
                   </div>
                 );
@@ -435,9 +466,21 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
 
                         {/* Nút Trạng thái Kết bạn */}
                         {isFriend ? (
-                          <span className="badge-request-sent" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--emerald-neon)', borderColor: 'rgba(16, 185, 129, 0.3)' }}>
-                            ✓ Đã là bạn bè
-                          </span>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            <span className="badge-request-sent" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--emerald-neon)', borderColor: 'rgba(16, 185, 129, 0.3)' }}>
+                              ✓ Bạn bè
+                            </span>
+                            <button
+                              type="button"
+                              className="btn-friend-reject"
+                              onClick={() => handleUnfriend(u._id, u.username)}
+                              disabled={actionLoadingId === u._id}
+                              title={`Hủy kết bạn với ${u.username}`}
+                              style={{ padding: '6px 8px', fontSize: '11px', minWidth: 'auto' }}
+                            >
+                              <UserMinus size={13} />
+                            </button>
+                          </div>
                         ) : isSent ? (
                           <span className="badge-request-sent">Đã gửi lời mời</span>
                         ) : isReceived ? (

@@ -12,14 +12,20 @@ async function createConversation(req, res) {
     return res.status(400).json({ error: 'Cần ít nhất 1 người tham gia khác' });
   }
 
-  const allParticipants = [...new Set([req.userId, ...participantIds])];
+  const allParticipants = [...new Set([req.userId.toString(), ...participantIds.map((id) => id.toString())])];
 
   if (type === 'private' && allParticipants.length === 2) {
     const existing = await Conversation.findOne({
       type: 'private',
       participants: { $all: allParticipants, $size: 2 },
     });
-    if (existing) return res.json(existing);
+    if (existing) {
+      const populated = await existing.populate(
+        'participants',
+        'username avatarUrl status elgamalPublicKey'
+      );
+      return res.json(populated);
+    }
   }
 
   const conversation = await Conversation.create({
@@ -28,7 +34,12 @@ async function createConversation(req, res) {
     participants: allParticipants,
   });
 
-  res.status(201).json(conversation);
+  const populated = await conversation.populate(
+    'participants',
+    'username avatarUrl status elgamalPublicKey'
+  );
+
+  res.status(201).json(populated);
 }
 
 /** GET /api/conversations/:id — lấy chi tiết hội thoại kèm public key của mọi thành viên */

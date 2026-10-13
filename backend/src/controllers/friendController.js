@@ -211,10 +211,46 @@ async function getFriendsList(req, res) {
   }
 }
 
+/**
+ * DELETE /api/friends/:friendId
+ * Hủy kết bạn (Xóa bạn bè).
+ */
+async function unfriend(req, res) {
+  try {
+    const friendId = req.params.friendId;
+    if (!friendId) {
+      return res.status(400).json({ error: 'Thiếu friendId' });
+    }
+
+    await User.findByIdAndUpdate(req.userId, { $pull: { friends: friendId } });
+    await User.findByIdAndUpdate(friendId, { $pull: { friends: req.userId } });
+
+    await FriendRequest.deleteMany({
+      $or: [
+        { sender: req.userId, receiver: friendId },
+        { sender: friendId, receiver: req.userId },
+      ],
+    });
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user:${friendId}`).emit('friend_removed', { friendId: req.userId });
+      io.to(`user:${req.userId}`).emit('friend_removed', { friendId });
+      io.emit('friendship_status_changed', { user1: req.userId, user2: friendId, status: 'none' });
+    }
+
+    res.json({ success: true, message: 'Đã hủy kết bạn thành công' });
+  } catch (err) {
+    console.error('Lỗi hủy kết bạn:', err);
+    res.status(500).json({ error: 'Lỗi server khi hủy kết bạn' });
+  }
+}
+
 module.exports = {
   getFriendRequests,
   sendFriendRequest,
   acceptFriendRequest,
   rejectFriendRequest,
   getFriendsList,
+  unfriend,
 };

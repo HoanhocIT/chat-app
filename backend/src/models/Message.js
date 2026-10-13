@@ -68,6 +68,12 @@ const MessageSchema = new mongoose.Schema(
     attachments: { type: [AttachmentSchema], default: [] },
 
     readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+
+    // Xóa tin nhắn ở phía tôi
+    deletedFor: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+
+    // Xóa / thu hồi tin nhắn ở phía mọi người
+    deletedForEveryone: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

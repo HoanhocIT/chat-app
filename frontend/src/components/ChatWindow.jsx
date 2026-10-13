@@ -12,6 +12,7 @@ import { playSendSound, playReceiveSound, isSoundEnabled, setSoundEnabled } from
 import CryptoModal from './CryptoModal';
 import KeyModal from './KeyModal';
 import RightFriendHub from './RightFriendHub';
+import GroupMembersModal from './GroupMembersModal';
 import {
   Send,
   Shield,
@@ -36,12 +37,25 @@ import {
   Paperclip,
   Image as ImageIcon,
   FileText,
-  Download
+  Download,
+  Trash2,
+  Undo2,
+  Users
 } from 'lucide-react';
 
 const QUICK_EMOJIS = ['👋', '😀', '❤️', '🔥', '👍', '🔐', '🛡️', '⚡', '🚀', '💻', '🎉', '✨'];
 
 async function decryptAndVerify(message, myUserId, privateKey) {
+  if (message.deletedForEveryone) {
+    return {
+      deletedForEveryone: true,
+      text: '',
+      replyInfo: null,
+      attachments: [],
+      verified: true,
+      hash: '',
+    };
+  }
   try {
     const mine = message.recipientKeys?.find(
       (rk) => (rk.recipient?._id || rk.recipient)?.toString() === myUserId?.toString()
@@ -118,6 +132,7 @@ export default function ChatWindow({
   // Modals
   const [inspectMessage, setInspectMessage] = useState(null);
   const [showKeyModal, setShowKeyModal] = useState(false);
+  const [showMembersModal, setShowMembersModal] = useState(false);
 
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
@@ -192,6 +207,7 @@ export default function ChatWindow({
               senderId: m.sender?._id || m.sender,
               senderName: m.sender?.username || 'Thành viên',
               createdAt: m.createdAt,
+              deletedForEveryone: Boolean(m.deletedForEveryone),
               ...result,
             };
           })
@@ -211,7 +227,7 @@ export default function ChatWindow({
       const result = await decryptAndVerify(m, user._id, privateKey);
       const isMine = (m.sender?._id || m.sender)?.toString() === user._id?.toString();
 
-      if (!isMine) {
+      if (!isMine && !m.deletedForEveryone) {
         playReceiveSound();
       }
 
@@ -224,6 +240,7 @@ export default function ChatWindow({
             senderId: m.sender?._id || m.sender,
             senderName: m.sender?.username || 'Thành viên',
             createdAt: m.createdAt,
+            deletedForEveryone: Boolean(m.deletedForEveryone),
             ...result,
           },
         ];
@@ -241,13 +258,25 @@ export default function ChatWindow({
       }
     };
 
+    const handleMessageDeleted = ({ messageId }) => {
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg._id === messageId
+            ? { ...msg, deletedForEveryone: true, text: '', attachments: [] }
+            : msg
+        )
+      );
+    };
+
     socket?.on('new_message', handleNewMessage);
     socket?.on('user_typing', handleUserTyping);
+    socket?.on('message_deleted_for_everyone', handleMessageDeleted);
 
     return () => {
       cancelled = true;
       socket?.off('new_message', handleNewMessage);
       socket?.off('user_typing', handleUserTyping);
+      socket?.off('message_deleted_for_everyone', handleMessageDeleted);
       if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
     };
   }, [conversationId, user._id, privateKey]);
@@ -255,6 +284,50 @@ export default function ChatWindow({
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, partnerTyping]);
+
+  async function handleDeleteForMe(messageId) {
+    if (!window.confirm('Xóa tin nhắn này ở phía bạn? (Người khác vẫn sẽ nhìn thấy)')) {
+      return;
+    }
+    try {
+      await http.put(`/conversations/${conversationId}/messages/${messageId}/delete-for-me`);
+      setMessages((prev) => prev.filter((m) => m._id !== messageId));
+    } catch (err) {
+      alert(err.response?.data?.error || 'Lỗi khi xóa tin nhắn');
+    }
+  }
+
+  async function handleDeleteForEveryone(messageId) {
+    if (!window.confirm('Thu hồi tin nhắn này ở phía mọi người? (Nội dung sẽ bị xóa đối với tất cả thành viên)')) {
+      return;
+    }
+    try {
+      await http.put(`/conversations/${conversationId}/messages/${messageId}/delete-for-everyone`);
+      setMessages((prev) =>
+        prev.map((m) =>
+          m._id === messageId
+            ? { ...m, deletedForEveryone: true, text: '', attachments: [] }
+            : m
+        )
+      );
+    } catch (err) {
+      alert(err.response?.data?.error || 'Lỗi khi thu hồi tin nhắn');
+    }
+  }
+
+  async function handleDirectChatFromGroup(targetUserId) {
+    try {
+      const { data: conv } = await http.post('/conversations', {
+        participantIds: [targetUserId],
+        type: 'direct',
+      });
+      if (onSelectConversation) {
+        onSelectConversation(conv._id, conv);
+      }
+    } catch (err) {
+      alert(err.response?.data?.error || 'Lỗi khi bắt đầu cuộc trò chuyện');
+    }
+  }
 
   function handleInputChange(e) {
     const text = e.target.value;
@@ -436,6 +509,18 @@ export default function ChatWindow({
             </button>
           )}
 
+          {conversation?.type === 'group' && (
+            <button
+              className="header-badge-btn"
+              onClick={() => setShowMembersModal(true)}
+              title="Xem danh sách thành viên trong nhóm"
+              style={{ background: 'rgba(56, 189, 248, 0.12)', borderColor: 'rgba(56, 189, 248, 0.3)' }}
+            >
+              <Users size={14} className="text-cyan" />
+              <span>{conversation.participants?.length || 0} thành viên</span>
+            </button>
+          )}
+
           <button
             className="header-badge-btn"
             onClick={() => setShowKeyModal(true)}
@@ -514,7 +599,12 @@ export default function ChatWindow({
                       </div>
                     )}
 
-                    {m.error ? (
+                    {m.deletedForEveryone ? (
+                      <div className="msg-recalled-box" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontStyle: 'italic', color: 'var(--text-dim)', fontSize: '13px', padding: '2px 0' }}>
+                        <Undo2 size={13} style={{ opacity: 0.7 }} />
+                        <span>Tin nhắn đã bị thu hồi</span>
+                      </div>
+                    ) : m.error ? (
                       <div className="msg-decrypt-error">
                         <AlertTriangle size={15} />
                         <span>{m.error}</span>
@@ -569,12 +659,12 @@ export default function ChatWindow({
 
                     <div className="msg-footer-bar">
                       <span className="msg-timestamp">{formatTime(m.createdAt)}</span>
-                      {mine && <CheckCheck size={13} className="text-cyan" />}
+                      {mine && !m.deletedForEveryone && <CheckCheck size={13} className="text-cyan" />}
                     </div>
                   </div>
 
                   {/* Verification & Action Chips */}
-                  {!m.error && (
+                  {!m.error && !m.deletedForEveryone && (
                     <div className="msg-security-row">
                       <button
                         className="msg-action-chip reply-btn"
@@ -595,6 +685,28 @@ export default function ChatWindow({
                         <Terminal size={11} className="ml-1 opacity-70" />
                         <span className="inspect-callout">Soi gói tin</span>
                       </button>
+
+                      <button
+                        className="msg-action-chip"
+                        style={{ color: 'var(--text-dim)' }}
+                        onClick={() => handleDeleteForMe(m._id)}
+                        title="Xóa tin nhắn này ở phía bạn"
+                      >
+                        <Trash2 size={11} />
+                        <span>Xóa ở tôi</span>
+                      </button>
+
+                      {mine && (
+                        <button
+                          className="msg-action-chip"
+                          style={{ color: '#f87171' }}
+                          onClick={() => handleDeleteForEveryone(m._id)}
+                          title="Thu hồi tin nhắn này đối với mọi người"
+                        >
+                          <Undo2 size={11} />
+                          <span>Thu hồi</span>
+                        </button>
+                      )}
                     </div>
                   )}
                 </div>
@@ -762,6 +874,16 @@ export default function ChatWindow({
         user={user}
         conversation={conversation}
         privateKey={privateKey}
+      />
+
+      {/* Group Members Modal */}
+      <GroupMembersModal
+        isOpen={showMembersModal}
+        onClose={() => setShowMembersModal(false)}
+        conversation={conversation}
+        currentUser={user}
+        userStatuses={userStatuses}
+        onStartDirectChat={handleDirectChatFromGroup}
       />
     </div>
   );
