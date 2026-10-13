@@ -2598,3 +2598,536 @@ button {
   border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
+/* ==========================================================================
+   RIGHT FRIEND HUB (GIAO DIỆN KẾT BẠN & TRÒ CHUYỆN KHUNG PHẢI)
+   ========================================================================== */
+.chat-empty-view-wrapper {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: radial-gradient(circle at 50% 20%, #111827 0%, var(--bg-deep) 100%);
+  overflow-y: auto;
+}
+
+.friend-hub-main-container {
+  width: 100%;
+  max-width: 760px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.friend-hub-top-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.friend-hub-brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.friend-hub-brand-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: rgba(0, 242, 254, 0.1);
+  border: 1px solid var(--border-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.friend-hub-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.friend-hub-desc {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.btn-create-group-hub {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, var(--cyan-dark), #0369a1);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(8, 145, 178, 0.35);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-create-group-hub:hover {
+  background: linear-gradient(135deg, var(--cyan-neon), var(--cyan-dark));
+  color: var(--bg-deep);
+  transform: translateY(-1px);
+}
+
+.friend-hub-nav-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-surface);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  overflow-x: auto;
+}
+
+.hub-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.hub-tab-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.hub-tab-btn.active {
+  background: var(--cyan-dark);
+  color: #fff;
+  box-shadow: 0 2px 10px rgba(8, 145, 178, 0.4);
+}
+
+.friend-hub-content-box {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 20px 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  min-height: 380px;
+}
+
+.hub-list-flow {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hub-list-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.hub-user-item-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+}
+
+.hub-user-item-card:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-light);
+  transform: translateY(-1px);
+}
+
+.hub-user-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.hub-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hub-username {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.hub-time {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.hub-email {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.hub-sec-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--emerald-neon);
+}
+
+.hub-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-friend-add-large {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 242, 254, 0.15);
+  border: 1px solid var(--border-cyan);
+  color: var(--cyan-neon);
+  padding: 7px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.btn-friend-add-large:hover {
+  background: var(--cyan-neon);
+  color: var(--bg-deep);
+  box-shadow: 0 0 12px var(--cyan-glow);
+}
+
+.hub-search-box-large {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-cyan);
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: 12px;
+}
+
+.hub-search-box-large input {
+  flex: 1;
+  background: transparent;
+  color: var(--text-main);
+  font-size: 14px;
+}
+
+.hub-search-results-area {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ==========================================================================
+   PROFILE MODAL (TRANG CÁ NHÂN & THÔNG TIN BẢO MẬT)
+   ========================================================================== */
+.profile-modal-window {
+  max-width: 580px;
+}
+
+.profile-banner-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, rgba(8, 145, 178, 0.15), rgba(168, 85, 247, 0.1));
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+
+.profile-large-avatar {
+  width: 64px !important;
+  height: 64px !important;
+  font-size: 24px !important;
+}
+
+.profile-username {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.profile-email-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.profile-stat-box {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+}
+
+.stat-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-number {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+  font-family: var(--font-mono);
+}
+
+.stat-label {
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+
+.profile-key-section {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 14px;
+  margin-bottom: 14px;
+}
+
+.profile-key-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.profile-key-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.profile-key-preview {
+  background: #06090e;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: var(--cyan-neon);
+  white-space: pre-line;
+}
+
+.profile-device-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+}
+
+.profile-device-status.secure {
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #6ee7b7;
+}
+
+.profile-device-status.warning {
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fcd34d;
+}
+
+/* ==========================================================================
+   CREATE GROUP MODAL (TẠO NHÓM CHAT)
+   ========================================================================== */
+.create-group-window {
+  max-width: 520px;
+}
+
+.group-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.group-input-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.group-name-input {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  font-size: 14px;
+  color: var(--text-main);
+  transition: all 0.2s ease;
+}
+
+.group-name-input:focus {
+  border-color: var(--cyan-neon);
+  box-shadow: 0 0 10px var(--cyan-glow);
+}
+
+.group-members-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.group-friend-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+}
+
+.group-friend-search-wrap input {
+  flex: 1;
+  background: transparent;
+  color: var(--text-main);
+  font-size: 13px;
+}
+
+.group-friends-picker-list {
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: var(--bg-surface);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.group-friend-choice-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.group-friend-choice-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.group-friend-choice-item.selected {
+  background: rgba(0, 242, 254, 0.1);
+  border: 1px solid var(--border-cyan);
+}
+
+.choice-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.choice-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.choice-email {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.checkbox-custom {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: transparent;
+}
+
+.checkbox-custom.checked {
+  background: var(--cyan-dark);
+  border-color: var(--cyan-neon);
+  color: #fff;
+}
+
+.btn-mini-add-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0, 242, 254, 0.12);
+  border: 1px solid var(--border-cyan);
+  color: var(--cyan-neon);
+  border-radius: 999px;
+  padding: 2px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-mini-add-group:hover {
+  background: var(--cyan-neon);
+  color: var(--bg-deep);
+}
+
+.clickable-profile {
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  transition: background 0.15s ease;
+}
+
+.clickable-profile:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+

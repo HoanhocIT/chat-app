@@ -11,7 +11,7 @@ import { getAvatarGradient, getInitials, formatTime } from '../utils/avatar';
 import { playSendSound, playReceiveSound, isSoundEnabled, setSoundEnabled } from '../utils/sound';
 import CryptoModal from './CryptoModal';
 import KeyModal from './KeyModal';
-import FriendRequestPanel from './FriendRequestPanel';
+import RightFriendHub from './RightFriendHub';
 import {
   Send,
   Shield,
@@ -90,7 +90,14 @@ async function decryptAndVerify(message, myUserId, privateKey) {
   }
 }
 
-export default function ChatWindow({ conversationId, userStatuses = {}, onBack, onOpenThemeModal, onSelectConversation }) {
+export default function ChatWindow({
+  conversationId,
+  userStatuses = {},
+  onBack,
+  onOpenThemeModal,
+  onSelectConversation,
+  onOpenCreateGroup,
+}) {
   const { user, privateKey } = useAuth();
   const [conversation, setConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -299,28 +306,11 @@ export default function ChatWindow({ conversationId, userStatuses = {}, onBack, 
 
   if (!conversationId) {
     return (
-      <div className="chat-empty-view">
-        <div className="chat-empty-card">
-          <div className="empty-shield-icon-wrapper">
-            <Shield size={44} className="shield-icon-glow" />
-            <Sparkles size={18} className="sparkle-accent" />
-          </div>
-          <h2>Chat-app — Bảo mật Đầu-Cuối Toàn Diện</h2>
-          <p className="empty-desc">
-            Tin nhắn của bạn được bảo vệ bởi mô hình mã hóa lai <strong>ElGamal 256-bit</strong> và{' '}
-            <strong>AES-256-GCM</strong>, xác thực chống giả mạo bằng <strong>Chữ ký số ElGamal</strong>.
-          </p>
-          <div className="empty-security-pills">
-            <span className="sec-pill">🔒 Zero-Knowledge</span>
-            <span className="sec-pill">⚡ AES-256-GCM</span>
-            <span className="sec-pill">🛡️ ElGamal Signature</span>
-          </div>
-        </div>
-
-        {/* Khung Thông báo & Quản lý Lời mời kết bạn */}
-        <FriendRequestPanel
+      <div className="chat-empty-view-wrapper">
+        <RightFriendHub
           onStartChat={(id, conv) => onSelectConversation && onSelectConversation(id, conv)}
           userStatuses={userStatuses}
+          onOpenCreateGroup={() => onOpenCreateGroup && onOpenCreateGroup()}
         />
       </div>
     );

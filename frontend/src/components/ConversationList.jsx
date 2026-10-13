@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { getAvatarGradient, getInitials, formatTime } from '../utils/avatar';
 import { Search, UserPlus, X, MessageSquare, ShieldCheck } from 'lucide-react';
 
-export default function ConversationList({ activeId, onSelect, userStatuses = {} }) {
+export default function ConversationList({ activeId, onSelect, userStatuses = {}, onOpenCreateGroup }) {
   const { user } = useAuth();
   const [conversations, setConversations] = useState([]);
   const [query, setQuery] = useState('');
@@ -171,7 +171,20 @@ export default function ConversationList({ activeId, onSelect, userStatuses = {}
       <div className="conversation-list-scroll">
         <div className="conv-section-title">
           <span>Hội thoại ({conversations.length})</span>
-          <span className="conv-badge-tag"><ShieldCheck size={12} /> E2E</span>
+          <div className="flex-center gap-2">
+            {onOpenCreateGroup && (
+              <button
+                className="btn-mini-add-group"
+                type="button"
+                onClick={onOpenCreateGroup}
+                title="Tạo nhóm chat mới"
+              >
+                <UserPlus size={13} />
+                <span>+ Nhóm</span>
+              </button>
+            )}
+            <span className="conv-badge-tag"><ShieldCheck size={12} /> E2E</span>
+          </div>
         </div>
 
         {conversations.length === 0 ? (

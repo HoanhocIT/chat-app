@@ -5,7 +5,9 @@ import ConversationList from '../components/ConversationList';
 import ChatWindow from '../components/ChatWindow';
 import KeyModal from '../components/KeyModal';
 import ThemeModal from '../components/ThemeModal';
-import { Shield, Key, LogOut, AlertTriangle, ShieldCheck, Cpu, Palette } from 'lucide-react';
+import ProfileModal from '../components/ProfileModal';
+import CreateGroupModal from '../components/CreateGroupModal';
+import { Shield, Key, LogOut, AlertTriangle, ShieldCheck, Cpu, Palette, User, Users } from 'lucide-react';
 import { getAvatarGradient, getInitials } from '../utils/avatar';
 
 export default function Chat() {
@@ -14,6 +16,8 @@ export default function Chat() {
   const [userStatuses, setUserStatuses] = useState({});
   const [showMyKeyModal, setShowMyKeyModal] = useState(false);
   const [showThemeModal, setShowThemeModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showCreateGroupModal, setShowCreateGroupModal] = useState(false);
 
   useEffect(() => {
     const socket = getSocket();
@@ -60,11 +64,16 @@ export default function Chat() {
           activeId={activeId}
           onSelect={(id) => setActiveId(id)}
           userStatuses={userStatuses}
+          onOpenCreateGroup={() => setShowCreateGroupModal(true)}
         />
 
         {/* Bottom Current User Card */}
         <div className="sidebar-user-footer">
-          <div className="user-profile-summary">
+          <div
+            className="user-profile-summary clickable-profile"
+            onClick={() => setShowProfileModal(true)}
+            title="Bấm để xem Trang cá nhân & Thông tin tài khoản"
+          >
             <div
               className="user-avatar-circle"
               style={{ background: getAvatarGradient(user?.username) }}
@@ -75,13 +84,27 @@ export default function Chat() {
             <div className="user-text-info">
               <span className="current-username">{user?.username}</span>
               <span className="current-user-role">
-                <Cpu size={12} className="text-cyan mr-1" />
-                Khóa 256-bit
+                <User size={12} className="text-cyan mr-1" />
+                Trang cá nhân
               </span>
             </div>
           </div>
 
           <div className="footer-action-buttons">
+            <button
+              className="btn-footer-icon"
+              onClick={() => setShowProfileModal(true)}
+              title="Xem Trang cá nhân của bạn"
+            >
+              <User size={16} />
+            </button>
+            <button
+              className="btn-footer-icon"
+              onClick={() => setShowCreateGroupModal(true)}
+              title="Tạo nhóm chat mới"
+            >
+              <Users size={16} />
+            </button>
             <button
               className="btn-footer-icon"
               onClick={() => setShowThemeModal(true)}
@@ -115,6 +138,7 @@ export default function Chat() {
           onBack={() => setActiveId(null)}
           onOpenThemeModal={() => setShowThemeModal(true)}
           onSelectConversation={(id) => setActiveId(id)}
+          onOpenCreateGroup={() => setShowCreateGroupModal(true)}
         />
       </main>
 
@@ -131,6 +155,21 @@ export default function Chat() {
       <ThemeModal
         isOpen={showThemeModal}
         onClose={() => setShowThemeModal(false)}
+      />
+
+      {/* Profile Modal */}
+      <ProfileModal
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+        friendsCount={user?.friends?.length || 0}
+      />
+
+      {/* Create Group Modal */}
+      <CreateGroupModal
+        isOpen={showCreateGroupModal}
+        onClose={() => setShowCreateGroupModal(false)}
+        userStatuses={userStatuses}
+        onGroupCreated={(newGroupId) => setActiveId(newGroupId)}
       />
     </div>
   );
