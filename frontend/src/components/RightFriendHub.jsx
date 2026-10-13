@@ -45,6 +45,7 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
 
   useEffect(() => {
     loadData();
+    fetchUsers();
 
     const socket = getSocket();
     const handleNewRequest = (newReq) => {
@@ -54,6 +55,7 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
 
     const handleAccepted = ({ friend, conversation }) => {
       loadData();
+      fetchUsers(searchQuery);
       showNotification(`🎉 ${friend?.username} đã chấp nhận lời mời kết bạn!`);
     };
 
@@ -100,22 +102,22 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
     }
   }
 
-  async function handleSearch(e) {
-    const q = e.target.value;
-    setSearchQuery(q);
-    if (!q.trim()) {
-      setSearchResults([]);
-      return;
-    }
+  async function fetchUsers(query = '') {
     setIsSearching(true);
     try {
-      const { data } = await http.get('/users/search', { params: { q } });
+      const { data } = await http.get('/users/search', { params: { q: query } });
       setSearchResults(data || []);
     } catch (err) {
-      console.error('Lỗi tìm kiếm:', err);
+      console.error('Lỗi lấy danh sách người dùng:', err);
     } finally {
       setIsSearching(false);
     }
+  }
+
+  async function handleSearch(e) {
+    const q = e.target.value;
+    setSearchQuery(q);
+    fetchUsers(q);
   }
 
   async function handleSendRequest(targetUserId) {
@@ -205,10 +207,13 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
           <button
             type="button"
             className={`hub-tab-btn ${activeTab === 'find' ? 'active' : ''}`}
-            onClick={() => setActiveTab('find')}
+            onClick={() => {
+              setActiveTab('find');
+              fetchUsers(searchQuery);
+            }}
           >
             <UserPlus size={15} />
-            <span>Tìm kiếm & Kết bạn</span>
+            <span>Người dùng & Kết bạn ({searchResults.length})</span>
           </button>
 
           <button
@@ -335,27 +340,30 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
           </div>
         )}
 
-        {/* TAB 3: TÌM KIẾM & KẾT BẠN */}
+        {/* TAB 3: NGƯỜI DÙNG & KẾT BẠN (HIỆN DANH SÁCH NGƯỜI LẠ) */}
         {activeTab === 'find' && (
           <div className="hub-list-flow">
+            <div className="hub-list-title">
+              <span>Danh sách người dùng trên hệ thống ({searchResults.length})</span>
+            </div>
+
             <div className="hub-search-box-large">
               <Search size={18} className="text-cyan" />
               <input
                 type="text"
-                placeholder="Nhập tên người dùng để tìm kiếm và kết bạn..."
+                placeholder="Lọc nhanh theo tên người dùng (hoặc xem tất cả bên dưới)..."
                 value={searchQuery}
                 onChange={handleSearch}
-                autoFocus
               />
-              {isSearching && <span className="text-xs text-muted">Đang tìm...</span>}
+              {isSearching && <span className="text-xs text-muted">Đang tải...</span>}
             </div>
 
             <div className="hub-search-results-area">
               {searchResults.length === 0 ? (
                 <div className="friend-empty-state">
                   <UserPlus size={40} className="text-muted" />
-                  <p>{searchQuery ? `Không tìm thấy người dùng "${searchQuery}"` : 'Nhập tên người dùng để tìm bạn bè'}</p>
-                  <span className="sub">Tìm kiếm bạn bè, bấm Kết bạn và sau đó có thể nhắn tin bảo mật E2EE.</span>
+                  <p>{searchQuery ? `Không tìm thấy người dùng nào với từ khóa "${searchQuery}"` : 'Chưa có người dùng nào khác trên hệ thống'}</p>
+                  <span className="sub">Danh sách người dùng sẽ tự động hiển thị tại đây để bạn kết bạn và trò chuyện.</span>
                 </div>
               ) : (
                 searchResults.map((u) => {

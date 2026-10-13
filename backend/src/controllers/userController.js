@@ -1,21 +1,26 @@
 const User = require('../models/User');
 const Conversation = require('../models/Conversation');
 
-/** GET /api/users/search?q=... — tìm user theo username để kết bạn hoặc chat */
+/** GET /api/users/search?q=... — tìm user hoặc hiện danh sách người dùng để kết bạn */
 async function searchUsers(req, res) {
   const q = (req.query.q || '').trim();
-  if (!q) return res.json([]);
 
   const FriendRequest = require('../models/FriendRequest');
   const currentUser = await User.findById(req.userId).select('friends');
   const friendsList = (currentUser?.friends || []).map((id) => id.toString());
 
-  const users = await User.find({
-    username: { $regex: q, $options: 'i' },
+  const filter = {
     _id: { $ne: req.userId },
-  })
+  };
+
+  if (q) {
+    filter.username = { $regex: q, $options: 'i' };
+  }
+
+  const users = await User.find(filter)
     .select('username email avatarUrl status')
-    .limit(20)
+    .sort({ createdAt: -1 })
+    .limit(50)
     .lean();
 
   const userIds = users.map((u) => u._id);
