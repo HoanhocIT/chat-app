@@ -505,18 +505,114 @@ button {
   color: var(--cyan-neon);
 }
 
+/* Mobile Navigation Bar */
+.mobile-nav-bar {
+  display: none;
+}
+
 @media (max-width: 850px) {
   .app-chat-shell {
-    grid-template-columns: 1fr;
-  }
-  .app-chat-shell.has-active .chat-sidebar-rail {
-    display: none;
-  }
-  .app-chat-shell:not(.has-active) .chat-main-container {
-    display: none;
-  }
-  .btn-mobile-back {
     display: flex;
+    flex-direction: column;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+    position: relative;
+    background: var(--bg-deep);
+  }
+
+  /* When an active conversation is open: chat window takes 100% full screen */
+  .app-chat-shell.has-active .chat-sidebar-rail {
+    display: none !important;
+  }
+  .app-chat-shell.has-active .chat-main-container {
+    display: flex !important;
+    flex: 1;
+    height: 100vh;
+    height: 100dvh;
+    width: 100%;
+    min-height: 0;
+  }
+  .app-chat-shell.has-active .mobile-nav-bar {
+    display: none !important;
+  }
+
+  /* When no active conversation: switch between Chats list and Friends hub */
+  .app-chat-shell:not(.has-active).mobile-view-chats .chat-sidebar-rail {
+    display: flex !important;
+    flex: 1;
+    width: 100%;
+    height: calc(100vh - 62px);
+    height: calc(100dvh - 62px);
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .app-chat-shell:not(.has-active).mobile-view-chats .chat-main-container {
+    display: none !important;
+  }
+
+  .app-chat-shell:not(.has-active).mobile-view-friends .chat-sidebar-rail {
+    display: none !important;
+  }
+  .app-chat-shell:not(.has-active).mobile-view-friends .chat-main-container {
+    display: flex !important;
+    flex: 1;
+    width: 100%;
+    height: calc(100vh - 62px);
+    height: calc(100dvh - 62px);
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  /* Mobile bottom bar */
+  .mobile-nav-bar {
+    display: flex !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 62px;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border-light);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    z-index: 999;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 8px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .mobile-nav-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    flex: 1;
+    padding: 6px 0;
+    transition: all 0.15s ease;
+    border-radius: 8px;
+  }
+  .mobile-nav-btn:active {
+    transform: scale(0.96);
+  }
+  .mobile-nav-btn.active {
+    color: var(--cyan-neon);
+    font-weight: 600;
+  }
+  .mobile-nav-btn.active svg {
+    color: var(--cyan-neon);
+    filter: drop-shadow(0 0 6px rgba(0, 242, 254, 0.4));
+  }
+
+  .btn-mobile-back {
+    display: flex !important;
   }
 }
 
@@ -3363,4 +3459,152 @@ button {
   background: var(--red-dim);
   color: var(--red-alert);
 }
+
+/* ==========================================================================
+   MOBILE & TABLET RESPONSIVE OPTIMIZATIONS
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* Prevent horizontal overflow */
+  html, body {
+    overflow-x: hidden;
+    touch-action: pan-y;
+  }
+
+  /* RightFriendHub responsive */
+  .friend-hub-main-container {
+    padding: 12px 10px 80px 10px !important;
+    gap: 12px !important;
+    max-width: 100% !important;
+  }
+
+  .friend-hub-top-card {
+    padding: 14px 12px !important;
+    border-radius: 14px !important;
+  }
+
+  .friend-hub-brand-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 12px !important;
+  }
+
+  .btn-create-group-hub {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 8px 12px !important;
+  }
+
+  .friend-hub-nav-tabs {
+    padding: 3px !important;
+    gap: 4px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .friend-hub-tab-btn {
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0;
+  }
+
+  .friend-hub-content-box {
+    padding: 14px 10px !important;
+    border-radius: 14px !important;
+  }
+
+  .hub-user-item-card {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+    padding: 12px 10px !important;
+  }
+
+  .hub-card-actions {
+    width: 100% !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    border-top: 1px dashed var(--border-subtle);
+    padding-top: 8px;
+    margin-top: 4px;
+  }
+
+  .btn-chat-with-friend,
+  .btn-friend-accept,
+  .btn-friend-reject,
+  .badge-request-sent {
+    padding: 6px 12px !important;
+    font-size: 12px !important;
+  }
+
+  /* Chat Window Mobile */
+  .chat-top-header {
+    padding: 8px 10px !important;
+  }
+
+  .chat-partner-name {
+    font-size: 14px !important;
+    max-width: 130px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+
+  .chat-header-actions {
+    gap: 4px !important;
+  }
+
+  .chat-btn-header-action {
+    padding: 5px 7px !important;
+    font-size: 11px !important;
+  }
+
+  .chat-messages-scroll-area {
+    padding: 10px 8px !important;
+  }
+
+  .chat-bubble-card {
+    max-width: 88% !important;
+    font-size: 14px !important;
+    padding: 8px 12px !important;
+  }
+
+  .chat-bottom-input-bar {
+    padding: 6px 8px env(safe-area-inset-bottom, 8px) 8px !important;
+  }
+
+  .chat-input-textarea {
+    font-size: 15px !important;
+    padding: 8px 10px !important;
+    min-height: 38px !important;
+  }
+
+  /* Modals on Mobile & Tablet */
+  .crypto-modal-card,
+  .profile-modal-card,
+  .key-modal-card,
+  .create-group-modal-card,
+  .theme-modal-card,
+  .backend-config-card {
+    width: calc(100vw - 16px) !important;
+    max-width: 100% !important;
+    max-height: 90vh !important;
+    max-height: 90dvh !important;
+    padding: 16px 14px !important;
+    margin: 8px auto !important;
+    border-radius: 16px !important;
+    overflow-y: auto !important;
+  }
+
+  /* Auth Screens on Mobile */
+  .auth-form-card {
+    padding: 24px 18px !important;
+    border-radius: 18px !important;
+    width: 100% !important;
+  }
+
+  .auth-form-container {
+    padding: 20px 14px !important;
+  }
+}
+
 

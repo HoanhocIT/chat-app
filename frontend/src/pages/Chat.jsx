@@ -7,12 +7,13 @@ import KeyModal from '../components/KeyModal';
 import ThemeModal from '../components/ThemeModal';
 import ProfileModal from '../components/ProfileModal';
 import CreateGroupModal from '../components/CreateGroupModal';
-import { Shield, Key, LogOut, AlertTriangle, ShieldCheck, Cpu, Palette, User, Users, Home } from 'lucide-react';
+import { Shield, Key, LogOut, AlertTriangle, ShieldCheck, Cpu, Palette, User, Users, Home, MessageSquare } from 'lucide-react';
 import { getAvatarGradient, getInitials } from '../utils/avatar';
 
 export default function Chat() {
   const { user, privateKey, logout } = useAuth();
   const [activeId, setActiveId] = useState(null);
+  const [mobileTab, setMobileTab] = useState('chats'); // 'chats' | 'friends'
   const [userStatuses, setUserStatuses] = useState({});
   const [showMyKeyModal, setShowMyKeyModal] = useState(false);
   const [showThemeModal, setShowThemeModal] = useState(false);
@@ -32,7 +33,7 @@ export default function Chat() {
   }, []);
 
   return (
-    <div className={`app-chat-shell ${activeId ? 'has-active' : ''}`}>
+    <div className={`app-chat-shell ${activeId ? 'has-active' : ''} mobile-view-${mobileTab}`}>
       {/* Sidebar (Rail) */}
       <aside className="chat-sidebar-rail">
         {/* App Logo & Branding */}
@@ -155,6 +156,36 @@ export default function Chat() {
           onOpenCreateGroup={() => setShowCreateGroupModal(true)}
         />
       </main>
+
+      {/* Mobile Navigation Bottom Bar (chỉ hiện trên màn hình điện thoại khi chưa vào phòng chat cụ thể) */}
+      {!activeId && (
+        <nav className="mobile-nav-bar" aria-label="Thanh điều hướng di động">
+          <button
+            className={`mobile-nav-btn ${mobileTab === 'chats' ? 'active' : ''}`}
+            onClick={() => setMobileTab('chats')}
+            type="button"
+          >
+            <MessageSquare size={20} />
+            <span>Đoạn chat</span>
+          </button>
+          <button
+            className={`mobile-nav-btn ${mobileTab === 'friends' ? 'active' : ''}`}
+            onClick={() => setMobileTab('friends')}
+            type="button"
+          >
+            <Users size={20} />
+            <span>Bạn bè & Kết nối</span>
+          </button>
+          <button
+            className="mobile-nav-btn"
+            onClick={() => setShowProfileModal(true)}
+            type="button"
+          >
+            <User size={20} />
+            <span>Cá nhân</span>
+          </button>
+        </nav>
+      )}
 
       {/* My Key Modal */}
       <KeyModal

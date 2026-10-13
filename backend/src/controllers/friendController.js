@@ -79,6 +79,8 @@ async function sendFriendRequest(req, res) {
     const io = req.app.get('io');
     if (io) {
       io.to(`user:${targetUserId}`).emit('friend_request_received', populated);
+      io.to(`user:${req.userId}`).emit('friend_request_sent', populated);
+      io.emit('friendship_status_changed', { user1: req.userId, user2: targetUserId, status: 'sent' });
     }
 
     res.status(201).json({ success: true, request: populated });
@@ -130,15 +132,22 @@ async function acceptFriendRequest(req, res) {
       'username avatarUrl status elgamalPublicKey'
     );
 
-    // Bắn realtime socket thông báo cho đối phương
+    // Bắn realtime socket thông báo cho cả 2 người
     const io = req.app.get('io');
     if (io) {
-      const acceptor = await User.findById(req.userId).select('username avatarUrl status');
+      const acceptor = await User.findById(req.userId).select('username avatarUrl status elgamalPublicKey');
+      const senderUser = await User.findById(request.sender).select('username avatarUrl status elgamalPublicKey');
       io.to(`user:${request.sender}`).emit('friend_request_accepted', {
         requestId,
         friend: acceptor,
         conversation: populatedConv,
       });
+      io.to(`user:${req.userId}`).emit('friend_request_accepted', {
+        requestId,
+        friend: senderUser,
+        conversation: populatedConv,
+      });
+      io.emit('friendship_status_changed', { user1: req.userId, user2: request.sender.toString(), status: 'friend' });
     }
 
     res.json({
@@ -171,6 +180,12 @@ async function rejectFriendRequest(req, res) {
 
     request.status = 'rejected';
     await request.save();
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(`user:${request.sender}`).emit('friend_request_rejected', { requestId });
+      io.emit('friendship_status_changed', { user1: req.userId, user2: request.sender.toString(), status: 'none' });
+    }
 
     res.json({ success: true, message: 'Đã từ chối lời mời kết bạn' });
   } catch (err) {

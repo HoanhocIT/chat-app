@@ -128,6 +128,12 @@ async function register(req, res) {
     // Xóa mã OTP đã dùng
     await RegisterOTP.deleteMany({ email: cleanEmail });
 
+    // Bắn realtime socket thông báo có người dùng mới đăng ký tới toàn bộ client
+    const io = req.app.get('io');
+    if (io) {
+      io.emit('new_user_registered', user.toSafeJSON());
+    }
+
     const token = signToken(user._id);
     res.status(201).json({ token, user: user.toSafeJSON() });
   } catch (err) {

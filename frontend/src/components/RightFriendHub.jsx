@@ -45,12 +45,26 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
 
   useEffect(() => {
     loadData();
-    fetchUsers();
+    fetchUsers(searchQuery);
 
     const socket = getSocket();
+
+    const handleNewUser = (newUser) => {
+      fetchUsers(searchQuery);
+      showNotification(`✨ Người dùng mới vừa đăng ký: ${newUser.username}!`);
+    };
+
     const handleNewRequest = (newReq) => {
-      setReceivedRequests((prev) => [newReq, ...prev]);
+      setReceivedRequests((prev) => [newReq, ...prev.filter((r) => r._id !== newReq._id)]);
+      fetchUsers(searchQuery);
+      loadData();
       showNotification(`🔔 Nhận được lời mời kết bạn từ ${newReq.sender?.username}!`);
+    };
+
+    const handleRequestSent = (newReq) => {
+      setSentRequests((prev) => [newReq, ...prev.filter((r) => r._id !== newReq._id)]);
+      fetchUsers(searchQuery);
+      loadData();
     };
 
     const handleAccepted = ({ friend, conversation }) => {
@@ -59,14 +73,32 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
       showNotification(`🎉 ${friend?.username} đã chấp nhận lời mời kết bạn!`);
     };
 
+    const handleRejected = () => {
+      loadData();
+      fetchUsers(searchQuery);
+    };
+
+    const handleFriendshipChanged = () => {
+      loadData();
+      fetchUsers(searchQuery);
+    };
+
+    socket?.on('new_user_registered', handleNewUser);
     socket?.on('friend_request_received', handleNewRequest);
+    socket?.on('friend_request_sent', handleRequestSent);
     socket?.on('friend_request_accepted', handleAccepted);
+    socket?.on('friend_request_rejected', handleRejected);
+    socket?.on('friendship_status_changed', handleFriendshipChanged);
 
     return () => {
+      socket?.off('new_user_registered', handleNewUser);
       socket?.off('friend_request_received', handleNewRequest);
+      socket?.off('friend_request_sent', handleRequestSent);
       socket?.off('friend_request_accepted', handleAccepted);
+      socket?.off('friend_request_rejected', handleRejected);
+      socket?.off('friendship_status_changed', handleFriendshipChanged);
     };
-  }, []);
+  }, [searchQuery]);
 
   function showNotification(msg) {
     setNotificationMsg(msg);

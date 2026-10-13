@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import http from '../api/http';
+import { getSocket } from '../api/socket';
 import { useAuth } from '../context/AuthContext';
 import { getAvatarGradient, getInitials, formatTime } from '../utils/avatar';
 import { Search, UserPlus, X, MessageSquare, ShieldCheck } from 'lucide-react';
@@ -22,6 +23,16 @@ export default function ConversationList({ activeId, onSelect, userStatuses = {}
 
   useEffect(() => {
     loadConversations();
+
+    const socket = getSocket();
+    const handleUpdate = () => loadConversations();
+    socket?.on('new_message', handleUpdate);
+    socket?.on('friend_request_accepted', handleUpdate);
+
+    return () => {
+      socket?.off('new_message', handleUpdate);
+      socket?.off('friend_request_accepted', handleUpdate);
+    };
   }, [activeId]);
 
   async function handleSearch(e) {
