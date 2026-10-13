@@ -84,9 +84,25 @@ async function sendResetPasswordEmail(toEmail, username, otpCode) {
         return { sent: true, simulated: false };
       } else {
         console.error('❌ Resend API phản hồi lỗi:', resData);
+        let errorMsg = resData?.message || 'Lỗi từ Resend API';
+        if (resData?.name === 'validation_error' && errorMsg.includes('testing emails')) {
+          errorMsg = `Tài khoản Resend miễn phí chỉ cho phép gửi thử tới chính email bạn đã đăng ký Resend. Để gửi tới email khác, bạn cần nhập đúng email đã đăng ký Resend hoặc xác thực domain.`;
+        }
+        return {
+          sent: true,
+          simulated: true,
+          otp: otpCode,
+          warning: `Resend: ${errorMsg}`,
+        };
       }
     } catch (apiErr) {
       console.error('❌ Lỗi kết nối Resend HTTP API:', apiErr.message);
+      return {
+        sent: true,
+        simulated: true,
+        otp: otpCode,
+        warning: `Lỗi kết nối Resend API: ${apiErr.message}`,
+      };
     }
   }
 
@@ -192,9 +208,25 @@ async function sendRegistrationOtpEmail(toEmail, username, otpCode) {
         return { sent: true, simulated: false };
       } else {
         console.error('❌ Resend API phản hồi lỗi:', resData);
+        let errorMsg = resData?.message || 'Lỗi từ Resend API';
+        if (resData?.name === 'validation_error' && errorMsg.includes('testing emails')) {
+          errorMsg = `Tài khoản Resend thử nghiệm (gói Free) chỉ cho phép gửi tới chính email bạn đã đăng ký tài khoản Resend. Để gửi tới email khác, bạn cần nhập đúng email đã đăng ký Resend hoặc thêm domain tại resend.com/domains.`;
+        }
+        return {
+          sent: true,
+          simulated: true,
+          otp: otpCode,
+          warning: `Resend: ${errorMsg}`,
+        };
       }
     } catch (apiErr) {
       console.error('❌ Lỗi kết nối Resend HTTP API:', apiErr.message);
+      return {
+        sent: true,
+        simulated: true,
+        otp: otpCode,
+        warning: `Lỗi kết nối Resend API: ${apiErr.message}`,
+      };
     }
   }
 
