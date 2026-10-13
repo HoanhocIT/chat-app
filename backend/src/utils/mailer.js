@@ -107,7 +107,46 @@ async function sendResetPasswordEmail(toEmail, username, otpCode) {
   }
 
   // --------------------------------------------------------------------------
-  // CÁCH 2: Gửi qua SMTP Gmail (Cổng 465 SSL)
+  // CÁCH 2: Gửi qua Brevo (Sendinblue) HTTP API (Cổng 443 HTTPS - Gửi tới MỌI EMAIL)
+  // --------------------------------------------------------------------------
+  if (process.env.BREVO_API_KEY) {
+    try {
+      const senderEmail = (process.env.BREVO_SENDER_EMAIL || process.env.EMAIL_USER || 'chungtoidongianlatho@gmail.com').trim();
+      const brevoRes = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'api-key': process.env.BREVO_API_KEY.trim(),
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          sender: { name: 'Chat-app E2EE', email: senderEmail },
+          to: [{ email: toEmail, name: username }],
+          subject: `[Chat-app] Mã OTP đặt lại mật khẩu: ${otpCode}`,
+          htmlContent: htmlContent,
+        }),
+      });
+
+      const brevoData = await brevoRes.json();
+      if (brevoRes.ok) {
+        console.log(`✅ [Brevo API HTTP] Đã gửi email tới: ${toEmail}`);
+        return { sent: true, simulated: false };
+      } else {
+        console.error('❌ Brevo API phản hồi lỗi:', brevoData);
+        return {
+          sent: true,
+          simulated: true,
+          otp: otpCode,
+          warning: `Brevo: ${brevoData.message || 'Lỗi gửi email qua Brevo'}`,
+        };
+      }
+    } catch (bErr) {
+      console.error('❌ Lỗi kết nối Brevo HTTP API:', bErr.message);
+    }
+  }
+
+  // --------------------------------------------------------------------------
+  // CÁCH 3: Gửi qua SMTP Gmail (Cổng 465 SSL)
   // --------------------------------------------------------------------------
   const transporter = createTransporter();
 
@@ -230,7 +269,44 @@ async function sendRegistrationOtpEmail(toEmail, username, otpCode) {
     }
   }
 
-  // 2. SMTP Gmail
+  // 2. Gửi qua Brevo (Sendinblue) HTTP API (Cổng 443 HTTPS - Gửi tới MỌI EMAIL)
+  if (process.env.BREVO_API_KEY) {
+    try {
+      const senderEmail = (process.env.BREVO_SENDER_EMAIL || process.env.EMAIL_USER || 'chungtoidongianlatho@gmail.com').trim();
+      const brevoRes = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'api-key': process.env.BREVO_API_KEY.trim(),
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          sender: { name: 'Chat-app E2EE', email: senderEmail },
+          to: [{ email: toEmail, name: username }],
+          subject: `[Chat-app] Mã OTP xác thực đăng ký: ${otpCode}`,
+          htmlContent: htmlContent,
+        }),
+      });
+
+      const brevoData = await brevoRes.json();
+      if (brevoRes.ok) {
+        console.log(`✅ [Brevo API HTTP] Đã gửi email xác thực tới: ${toEmail}`);
+        return { sent: true, simulated: false };
+      } else {
+        console.error('❌ Brevo API phản hồi lỗi:', brevoData);
+        return {
+          sent: true,
+          simulated: true,
+          otp: otpCode,
+          warning: `Brevo: ${brevoData.message || 'Lỗi gửi email qua Brevo'}`,
+        };
+      }
+    } catch (bErr) {
+      console.error('❌ Lỗi kết nối Brevo HTTP API:', bErr.message);
+    }
+  }
+
+  // 3. SMTP Gmail
   const transporter = createTransporter();
   if (transporter) {
     const cleanUser = (process.env.EMAIL_USER || '').trim();
