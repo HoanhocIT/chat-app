@@ -46,7 +46,8 @@ const io = new Server(server, {
 });
 
 app.use(cors(corsOptions));
-app.use(express.json({ limit: '5mb' })); // đủ lớn cho payload mã hóa + metadata file
+app.use(express.json({ limit: '25mb' })); // đủ lớn cho tin nhắn kèm ảnh / tệp đính kèm mã hóa E2E
+app.use(express.urlencoded({ limit: '25mb', extended: true }));
 
 // API Routes
 app.use('/api/auth', authRoutes);

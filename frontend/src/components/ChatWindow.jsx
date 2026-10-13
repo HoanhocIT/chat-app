@@ -32,7 +32,11 @@ import {
   CornerDownRight,
   X,
   Palette,
-  Home
+  Home,
+  Paperclip,
+  Image as ImageIcon,
+  FileText,
+  Download
 } from 'lucide-react';
 
 const QUICK_EMOJIS = ['👋', '😀', '❤️', '🔥', '👍', '🔐', '🛡️', '⚡', '🚀', '💻', '🎉', '✨'];
@@ -71,6 +75,7 @@ async function decryptAndVerify(message, myUserId, privateKey) {
     return {
       text,
       replyInfo,
+      attachments: message.attachments || [],
       verified,
       hash,
       raw: {
@@ -108,6 +113,7 @@ export default function ChatWindow({
   const [soundOn, setSoundOn] = useState(isSoundEnabled());
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [replyingTo, setReplyingTo] = useState(null); // { id, senderName, text }
+  const [selectedFiles, setSelectedFiles] = useState([]); // [{ file, previewUrl, name, size, type, base64 }]
 
   // Modals
   const [inspectMessage, setInspectMessage] = useState(null);
@@ -115,6 +121,7 @@ export default function ChatWindow({
 
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
+  const fileInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const lastTypingEmitRef = useRef(0);
 
@@ -123,6 +130,43 @@ export default function ChatWindow({
     const next = !soundOn;
     setSoundOn(next);
     setSoundEnabled(next);
+  }
+
+  function handleFileSelect(e) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    files.forEach((file) => {
+      // Giới hạn kích thước file 15MB để truyền mượt mà
+      if (file.size > 15 * 1024 * 1024) {
+        alert(`Tệp "${file.name}" vượt quá kích thước 15MB cho phép.`);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (uploadEvent) => {
+        const base64Data = uploadEvent.target.result;
+        const isImg = file.type.startsWith('image/');
+        setSelectedFiles((prev) => [
+          ...prev,
+          {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            isImage: isImg,
+            previewUrl: isImg ? base64Data : null,
+            base64: base64Data,
+          },
+        ]);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    e.target.value = '';
+  }
+
+  function handleRemoveFile(index) {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
   }
 
   // Load conversation & messages
@@ -250,12 +294,27 @@ export default function ChatWindow({
 
   async function handleSend(e) {
     e?.preventDefault?.();
-    if (!draft.trim() || !conversation || sending) return;
+    const hasFiles = selectedFiles.length > 0;
+    if ((!draft.trim() && !hasFiles) || !conversation || sending) return;
 
     const contentToSend = draft.trim();
     setSending(true);
 
     try {
+      // Chuẩn bị danh sách attachments đã băm sha256
+      const attachmentsToSend = await Promise.all(
+        selectedFiles.map(async (f) => {
+          const fileSha256 = await sha256(f.base64);
+          return {
+            url: f.base64,
+            filename: f.name,
+            mimeType: f.type,
+            sizeBytes: f.size,
+            sha256: fileSha256,
+          };
+        })
+      );
+
       // Nếu đang trả lời tin nhắn cũ: đóng gói metadata trả lời vào nội dung mã hóa E2E
       let payloadText = contentToSend;
       if (replyingTo) {
@@ -286,7 +345,13 @@ export default function ChatWindow({
       const socket = getSocket();
       socket.emit(
         'send_message',
-        { conversationId, encryptedMessage, recipientKeys, signature: sig },
+        {
+          conversationId,
+          encryptedMessage,
+          recipientKeys,
+          signature: sig,
+          attachments: attachmentsToSend,
+        },
         (ack) => {
           if (ack?.error) {
             console.error('Gửi tin nhắn thất bại:', ack.error);
@@ -296,6 +361,7 @@ export default function ChatWindow({
 
       playSendSound();
       setDraft('');
+      setSelectedFiles([]);
       setReplyingTo(null);
       setShowEmojiPicker(false);
     } catch (err) {
@@ -454,7 +520,51 @@ export default function ChatWindow({
                         <span>{m.error}</span>
                       </div>
                     ) : (
-                      <div className="msg-text-line">{m.text}</div>
+                      <>
+                        {m.text && <div className="msg-text-line">{m.text}</div>}
+
+                        {/* File & Image Attachments */}
+                        {m.attachments && m.attachments.length > 0 && (
+                          <div className="msg-attachments-container">
+                            {m.attachments.map((att, attIdx) => {
+                              const isImg = att.mimeType?.startsWith('image/') || att.url?.startsWith('data:image/');
+                              return (
+                                <div key={attIdx} className="msg-attachment-item">
+                                  {isImg ? (
+                                    <div className="attachment-image-wrap">
+                                      <img
+                                        src={att.url}
+                                        alt={att.filename}
+                                        className="attachment-rendered-img"
+                                        onClick={() => window.open(att.url, '_blank')}
+                                        title="Bấm để xem ảnh gốc"
+                                      />
+                                    </div>
+                                  ) : (
+                                    <a
+                                      href={att.url}
+                                      download={att.filename}
+                                      className="attachment-file-card"
+                                      title={`Tải xuống ${att.filename}`}
+                                    >
+                                      <div className="file-icon-badge">
+                                        <FileText size={18} />
+                                      </div>
+                                      <div className="file-info-text">
+                                        <span className="file-name-text">{att.filename}</span>
+                                        <span className="file-size-text">
+                                          {(att.sizeBytes / 1024).toFixed(1)} KB
+                                        </span>
+                                      </div>
+                                      <Download size={14} className="file-download-icon" />
+                                    </a>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </>
                     )}
 
                     <div className="msg-footer-bar">
@@ -557,8 +667,51 @@ export default function ChatWindow({
         </div>
       )}
 
+      {/* Selected Attachments Preview Bar */}
+      {selectedFiles.length > 0 && (
+        <div className="composer-attachments-preview">
+          {selectedFiles.map((f, idx) => (
+            <div key={idx} className="preview-attachment-chip">
+              {f.isImage ? (
+                <img src={f.previewUrl} alt={f.name} className="preview-mini-thumb" />
+              ) : (
+                <FileText size={16} className="text-cyan" />
+              )}
+              <span className="preview-filename">{f.name}</span>
+              <button
+                type="button"
+                className="btn-remove-attachment"
+                onClick={() => handleRemoveFile(idx)}
+                title="Xóa tệp này"
+              >
+                <X size={13} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Composer Input Area */}
       <form className="chat-composer-form" onSubmit={handleSend}>
+        {/* Hidden File Input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          multiple
+          onChange={handleFileSelect}
+          style={{ display: 'none' }}
+        />
+
+        {/* Nút Đính kèm Tệp / Ảnh */}
+        <button
+          type="button"
+          className="btn-emoji-toggle"
+          onClick={() => fileInputRef.current?.click()}
+          title="Gửi ảnh hoặc tệp đính kèm mã hóa"
+        >
+          <Paperclip size={19} />
+        </button>
+
         <button
           type="button"
           className={`btn-emoji-toggle ${showEmojiPicker ? 'active' : ''}`}
@@ -574,7 +727,13 @@ export default function ChatWindow({
             className="composer-input"
             value={draft}
             onChange={handleInputChange}
-            placeholder={replyingTo ? `Trả lời ${replyingTo.senderName}...` : 'Nhập tin nhắn bảo mật (mã hóa tự động trước khi gửi)...'}
+            placeholder={
+              replyingTo
+                ? `Trả lời ${replyingTo.senderName}...`
+                : selectedFiles.length > 0
+                ? 'Nhập lời nhắn kèm tệp (hoặc nhấn Gửi trực tiếp)...'
+                : 'Nhập tin nhắn bảo mật (mã hóa tự động trước khi gửi)...'
+            }
             disabled={sending}
           />
         </div>
@@ -582,7 +741,7 @@ export default function ChatWindow({
         <button
           className="btn-composer-send"
           type="submit"
-          disabled={sending || !draft.trim()}
+          disabled={sending || (!draft.trim() && selectedFiles.length === 0)}
           title="Gửi tin nhắn mã hóa"
         >
           <Send size={18} />
