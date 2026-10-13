@@ -43,6 +43,7 @@ const corsOptions = {
 const io = new Server(server, {
   cors: corsOptions,
   transports: ['websocket', 'polling'],
+  maxHttpBufferSize: 25 * 1024 * 1024, // Cho phép payload WebSocket gửi ảnh/tệp tới 25MB
 });
 
 app.use(cors(corsOptions));

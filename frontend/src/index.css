@@ -1271,35 +1271,48 @@ button {
 .msg-verify-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
+  gap: 5px;
+  padding: 3px 10px;
   border-radius: var(--radius-full);
   font-size: 11px;
   font-weight: 500;
-  background: transparent;
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
+  cursor: pointer;
   border: 1px solid transparent;
 }
 .msg-verify-badge.is-valid {
-  color: var(--emerald-neon);
-  background: var(--emerald-dim);
-  border-color: rgba(16, 185, 129, 0.3);
+  color: #047857;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+.msg-verify-badge.is-valid:hover {
+  background: #d1fae5;
+  border-color: #6ee7b7;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.15);
 }
 .msg-verify-badge.is-invalid {
-  color: var(--red-alert);
-  background: var(--red-dim);
-  border-color: rgba(244, 63, 94, 0.3);
+  color: #b91c1c;
+  background: #fef2f2;
+  border-color: #fecaca;
 }
-.msg-verify-badge:hover {
-  filter: brightness(1.2);
+.msg-verify-badge.is-invalid:hover {
+  background: #fee2e2;
+  border-color: #f87171;
   transform: translateY(-1px);
 }
 .inspect-callout {
   font-size: 10px;
-  background: rgba(0, 0, 0, 0.3);
-  padding: 1px 5px;
-  border-radius: 4px;
-  margin-left: 2px;
+  font-weight: 600;
+  background: #10b981;
+  color: #ffffff;
+  padding: 1.5px 6px;
+  border-radius: var(--radius-full);
+  margin-left: 3px;
+  letter-spacing: 0.2px;
+}
+.msg-verify-badge.is-invalid .inspect-callout {
+  background: #ef4444;
 }
 
 /* Typing Bubble */
@@ -1853,18 +1866,19 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 3px 8px;
+  padding: 3px 9px;
   border-radius: var(--radius-full);
   font-size: 11px;
   font-weight: 500;
-  background: rgba(255, 255, 255, 0.05);
+  background: var(--bg-card);
   color: var(--text-muted);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-light);
   transition: all 0.15s ease;
   margin-right: 6px;
+  cursor: pointer;
 }
 .msg-action-chip:hover {
-  background: rgba(0, 242, 254, 0.12);
+  background: rgba(2, 132, 199, 0.08);
   color: var(--cyan-neon);
   border-color: var(--border-cyan);
 }
