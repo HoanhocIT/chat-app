@@ -118,7 +118,7 @@ button {
 
 .auth-brand-pane {
   position: relative;
-  background: radial-gradient(circle at 10% 20%, #151d2f 0%, #0a0e18 90%);
+  background: linear-gradient(145deg, var(--bg-surface) 0%, var(--bg-deep) 100%);
   border-right: 1px solid var(--border-subtle);
   padding: 48px;
   display: flex;
@@ -142,7 +142,7 @@ button {
   left: -100px;
   width: 450px;
   height: 450px;
-  background: radial-gradient(circle, rgba(0, 242, 254, 0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--cyan-glow) 0%, transparent 70%);
   pointer-events: none;
   filter: blur(40px);
 }
@@ -151,8 +151,8 @@ button {
   position: absolute;
   inset: 0;
   background-image: 
-    linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(to right, var(--border-subtle) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--border-subtle) 1px, transparent 1px);
   background-size: 36px 36px;
   pointer-events: none;
   mask-image: radial-gradient(circle at 50% 50%, black 40%, transparent 80%);
@@ -169,12 +169,12 @@ button {
   width: 46px;
   height: 46px;
   border-radius: var(--radius-md);
-  background: rgba(0, 242, 254, 0.1);
+  background: rgba(2, 132, 199, 0.1);
   border: 1px solid var(--border-cyan);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 4px 12px var(--cyan-glow);
 }
 .shield-neon {
   color: var(--cyan-neon);
@@ -227,23 +227,24 @@ button {
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  background: rgba(24, 34, 53, 0.5);
+  background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   backdrop-filter: blur(8px);
   padding: 14px 18px;
   border-radius: var(--radius-md);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease;
 }
 .crypto-feature-card:hover {
-  background: rgba(24, 34, 53, 0.8);
-  border-color: var(--border-light);
+  background: var(--bg-card-hover);
+  border-color: var(--border-cyan);
   transform: translateX(4px);
 }
 .feature-icon-box {
   width: 34px;
   height: 34px;
   border-radius: 8px;
-  background: rgba(0, 242, 254, 0.1);
+  background: rgba(2, 132, 199, 0.1);
   color: var(--cyan-neon);
   display: flex;
   align-items: center;
@@ -264,11 +265,11 @@ button {
 
 .brand-terminal-bar {
   z-index: 2;
-  background: #06090e;
+  background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 14px 16px;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 .terminal-header-dots {
   display: flex;
@@ -294,9 +295,9 @@ button {
 .auth-cipher-line {
   font-family: var(--font-mono);
   font-size: 14px;
-  color: var(--cyan-neon);
+  color: var(--cyan-dark);
+  font-weight: 600;
   letter-spacing: 0.04em;
-  text-shadow: 0 0 12px var(--cyan-glow);
   min-height: 22px;
 }
 
@@ -307,17 +308,18 @@ button {
   justify-content: center;
   padding: 36px 24px;
   position: relative;
+  background: var(--bg-deep);
 }
 
 .auth-form-card {
   width: 100%;
   max-width: 420px;
-  background: rgba(18, 24, 38, 0.7);
-  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
   backdrop-filter: blur(16px);
   padding: 36px;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-subtle);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
 
 .auth-card-top {
@@ -329,7 +331,7 @@ button {
   gap: 6px;
   padding: 4px 10px;
   border-radius: var(--radius-full);
-  background: rgba(0, 242, 254, 0.1);
+  background: rgba(2, 132, 199, 0.1);
   color: var(--cyan-neon);
   font-size: 12px;
   font-weight: 500;
@@ -341,6 +343,7 @@ button {
   font-weight: 600;
   letter-spacing: -0.01em;
   margin-bottom: 6px;
+  color: var(--text-main);
 }
 .auth-subheading {
   font-size: 13.5px;
@@ -531,7 +534,7 @@ button {
 .sidebar-brand-header {
   padding: 18px 20px;
   border-bottom: 1px solid var(--border-subtle);
-  background: rgba(18, 24, 38, 0.5);
+  background: var(--bg-surface);
 }
 .brand-logo-area {
   display: flex;
@@ -882,7 +885,7 @@ button {
 /* Sidebar Footer User Card */
 .sidebar-user-footer {
   padding: 14px 16px;
-  background: rgba(14, 20, 32, 0.85);
+  background: var(--bg-surface);
   border-top: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -921,7 +924,7 @@ button {
   width: 32px;
   height: 32px;
   border-radius: var(--radius-sm);
-  background: var(--bg-surface);
+  background: var(--bg-card);
   color: var(--text-muted);
   display: flex;
   align-items: center;
@@ -929,7 +932,7 @@ button {
   transition: all 0.15s ease;
 }
 .btn-footer-icon:hover {
-  background: var(--bg-card);
+  background: var(--bg-card-hover);
   color: var(--text-main);
 }
 .btn-footer-icon.btn-logout:hover {
@@ -944,7 +947,7 @@ button {
   display: flex;
   flex-direction: column;
   min-height: 0;
-  background: radial-gradient(circle at 60% 30%, #0e1523 0%, var(--bg-deep) 100%);
+  background: var(--bg-deep);
   position: relative;
 }
 
@@ -959,12 +962,12 @@ button {
 .chat-empty-card {
   max-width: 500px;
   text-align: center;
-  background: rgba(18, 24, 38, 0.6);
-  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
   backdrop-filter: blur(12px);
   padding: 40px 32px;
   border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-subtle);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
 }
 .empty-shield-icon-wrapper {
   position: relative;
@@ -1033,7 +1036,7 @@ button {
 .chat-top-header {
   height: 64px;
   padding: 0 24px;
-  background: rgba(14, 20, 32, 0.85);
+  background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
   backdrop-filter: blur(12px);
   display: flex;
@@ -1093,7 +1096,7 @@ button {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--bg-surface);
+  background: var(--bg-card);
   border: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -1101,7 +1104,7 @@ button {
   transition: all 0.15s ease;
 }
 .header-icon-action-btn:hover {
-  background: var(--bg-card);
+  background: var(--bg-card-hover);
   border-color: var(--border-light);
 }
 
@@ -1120,26 +1123,28 @@ button {
   max-width: 440px;
   text-align: center;
   padding: 32px 24px;
-  background: rgba(18, 24, 38, 0.4);
-  border: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 .welcome-lock-badge {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: rgba(0, 242, 254, 0.1);
+  background: rgba(2, 132, 199, 0.1);
   color: var(--cyan-neon);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 14px;
-  box-shadow: 0 0 20px var(--cyan-glow);
+  box-shadow: 0 4px 14px var(--cyan-glow);
 }
 .conversation-start-welcome h4 {
   font-size: 16px;
   font-weight: 600;
   margin-bottom: 6px;
+  color: var(--text-main);
 }
 .conversation-start-welcome p {
   font-size: 13px;
@@ -1163,7 +1168,7 @@ button {
   transition: all 0.15s ease;
 }
 .quick-start-buttons button:hover {
-  background: var(--bg-card);
+  background: var(--bg-card-hover);
   color: var(--cyan-neon);
   border-color: var(--border-cyan);
 }
@@ -1226,10 +1231,10 @@ button {
 }
 .bubble-theirs {
   background: var(--bg-card);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-light);
   color: var(--text-main);
   border-bottom-left-radius: 4px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .msg-footer-bar {
@@ -1321,7 +1326,7 @@ button {
 /* Emoji Drawer */
 .quick-emoji-drawer {
   padding: 8px 24px;
-  background: rgba(18, 24, 38, 0.9);
+  background: var(--bg-surface);
   border-top: 1px solid var(--border-subtle);
 }
 .emoji-list {
@@ -1339,13 +1344,13 @@ button {
 }
 .emoji-btn:hover {
   transform: scale(1.3);
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 /* Composer Form */
 .chat-composer-form {
   padding: 14px 24px;
-  background: rgba(14, 20, 32, 0.95);
+  background: var(--bg-card);
   border-top: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -2609,7 +2614,7 @@ button {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: radial-gradient(circle at 50% 20%, #111827 0%, var(--bg-deep) 100%);
+  background: var(--bg-deep);
   overflow-y: auto;
 }
 
@@ -2626,7 +2631,7 @@ button {
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
   padding: 20px 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 .friend-hub-brand-row {
@@ -2641,7 +2646,7 @@ button {
   width: 48px;
   height: 48px;
   border-radius: var(--radius-md);
-  background: rgba(0, 242, 254, 0.1);
+  background: rgba(2, 132, 199, 0.1);
   border: 1px solid var(--border-cyan);
   display: flex;
   align-items: center;
@@ -2710,7 +2715,7 @@ button {
 
 .hub-tab-btn:hover {
   color: var(--text-main);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .hub-tab-btn.active {
@@ -2724,7 +2729,7 @@ button {
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
   padding: 20px 24px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
   min-height: 380px;
 }
 

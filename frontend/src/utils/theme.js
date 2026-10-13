@@ -86,11 +86,15 @@ export const THEMES = [
   },
 ];
 
-const STORAGE_KEY = 'chat_app_theme';
+const STORAGE_KEY = 'chat_app_theme_v2';
 
 export function getActiveThemeId() {
   if (typeof window === 'undefined') return 'light-white';
-  return localStorage.getItem(STORAGE_KEY) || 'light-white';
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved || saved === 'cyber-cyan') {
+    return 'light-white';
+  }
+  return saved;
 }
 
 export function applyTheme(themeId) {
