@@ -2,25 +2,25 @@
 /* Fonts loaded via preconnect in index.html for high performance */
 
 :root {
-  --bg-deep: #07090e;
-  --bg-primary: #0c101a;
-  --bg-surface: #121826;
-  --bg-card: #182235;
-  --bg-card-hover: #1e2c45;
-  --bg-card-active: #253755;
+  --bg-deep: #f8fafc;
+  --bg-primary: #ffffff;
+  --bg-surface: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
+  --bg-card-active: #e2e8f0;
   
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-light: rgba(255, 255, 255, 0.12);
-  --border-cyan: rgba(0, 242, 254, 0.4);
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-light: rgba(0, 0, 0, 0.12);
+  --border-cyan: rgba(2, 132, 199, 0.4);
   --border-emerald: rgba(16, 185, 129, 0.4);
 
-  --text-main: #f8fafc;
-  --text-muted: #94a3b8;
-  --text-dim: #64748b;
+  --text-main: #0f172a;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
 
-  --cyan-neon: #00f2fe;
-  --cyan-dark: #0891b2;
-  --cyan-glow: rgba(0, 242, 254, 0.25);
+  --cyan-neon: #0284c7;
+  --cyan-dark: #0369a1;
+  --cyan-glow: rgba(2, 132, 199, 0.2);
   
   --emerald-neon: #10b981;
   --emerald-dim: rgba(16, 185, 129, 0.15);
@@ -1435,10 +1435,11 @@ button {
 .crypto-modal-window {
   width: 100%;
   max-width: 660px;
-  background: #111827;
+  background: var(--bg-card);
+  color: var(--text-main);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-lg);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
   display: flex;
   flex-direction: column;
   max-height: 85vh;
@@ -1450,7 +1451,7 @@ button {
 
 .crypto-modal-header {
   padding: 18px 22px;
-  background: rgba(24, 34, 53, 0.6);
+  background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
   display: flex;
   align-items: center;
@@ -3129,5 +3130,60 @@ button {
 
 .clickable-profile:hover {
   background: rgba(255, 255, 255, 0.05);
+}
+
+/* Modal Footer & Action Buttons */
+.crypto-modal-footer {
+  padding: 16px 22px;
+  background: var(--bg-surface);
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.btn-modal-secondary {
+  padding: 9px 18px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  font-size: 13.5px;
+  font-weight: 500;
+  border: 1px solid var(--border-subtle);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-modal-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--text-main);
+  border-color: var(--border-light);
+}
+
+.btn-modal-primary {
+  padding: 9px 20px;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, var(--cyan-dark), #0284c7);
+  color: #fff;
+  font-size: 13.5px;
+  font-weight: 600;
+  border: none;
+  box-shadow: 0 4px 14px rgba(8, 145, 178, 0.4);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-modal-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, var(--cyan-neon), var(--cyan-dark));
+  color: var(--bg-deep);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 18px var(--cyan-glow);
+}
+
+.btn-modal-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 

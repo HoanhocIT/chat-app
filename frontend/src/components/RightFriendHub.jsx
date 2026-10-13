@@ -254,7 +254,6 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
                         <span className="hub-username">{u?.username}</span>
                         <span className="hub-time">{formatTime(reqItem.createdAt)}</span>
                       </div>
-                      <span className="hub-email">{u?.email}</span>
                       <span className="hub-sec-tag">
                         <ShieldCheck size={12} className="text-emerald" /> Khóa công khai ElGamal sẵn sàng
                       </span>
@@ -317,7 +316,6 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
                           {isOnline ? 'Trực tuyến' : 'Ngoại tuyến'}
                         </span>
                       </div>
-                      <span className="hub-email">{f.email}</span>
                     </div>
 
                     <div className="hub-card-actions">
@@ -344,7 +342,7 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
               <Search size={18} className="text-cyan" />
               <input
                 type="text"
-                placeholder="Nhập tên người dùng hoặc email để tìm kiếm và kết bạn..."
+                placeholder="Nhập tên người dùng để tìm kiếm và kết bạn..."
                 value={searchQuery}
                 onChange={handleSearch}
                 autoFocus
@@ -356,7 +354,7 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
               {searchResults.length === 0 ? (
                 <div className="friend-empty-state">
                   <UserPlus size={40} className="text-muted" />
-                  <p>{searchQuery ? `Không tìm thấy người dùng "${searchQuery}"` : 'Nhập từ khóa để tìm bạn bè'}</p>
+                  <p>{searchQuery ? `Không tìm thấy người dùng "${searchQuery}"` : 'Nhập tên người dùng để tìm bạn bè'}</p>
                   <span className="sub">Tìm kiếm bạn bè, bấm Kết bạn và sau đó có thể nhắn tin bảo mật E2EE.</span>
                 </div>
               ) : (
@@ -378,7 +376,9 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
                           <span className="hub-username">{u.username}</span>
                           {isFriend && <span className="status-pill online">Bạn bè</span>}
                         </div>
-                        <span className="hub-email">{u.email}</span>
+                        <span className="hub-sec-tag">
+                          <ShieldCheck size={12} className="text-emerald" /> Khóa ElGamal 256-bit
+                        </span>
                       </div>
 
                       <div className="hub-card-actions">
@@ -450,7 +450,6 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
                         <span className="hub-username">{u?.username}</span>
                         <span className="hub-time">{formatTime(reqItem.createdAt)}</span>
                       </div>
-                      <span className="hub-email">{u?.email}</span>
                     </div>
 
                     <div className="friend-card-pending-badge">

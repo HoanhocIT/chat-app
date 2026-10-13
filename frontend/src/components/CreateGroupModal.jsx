@@ -180,7 +180,7 @@ export default function CreateGroupModal({ isOpen, onClose, onGroupCreated, user
 
                         <div className="choice-info">
                           <span className="choice-name">{friend.username}</span>
-                          <span className="choice-email">{friend.email}</span>
+                          <span className="choice-status">{isOnline ? 'Đang trực tuyến' : 'Ngoại tuyến'}</span>
                         </div>
 
                         <div className={`checkbox-custom ${isSelected ? 'checked' : ''}`}>

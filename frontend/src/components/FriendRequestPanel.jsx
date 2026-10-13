@@ -199,7 +199,6 @@ export default function FriendRequestPanel({ onStartChat, userStatuses = {} }) {
                         <span className="friend-name">{u?.username}</span>
                         <span className="friend-time">{formatTime(reqItem.createdAt)}</span>
                       </div>
-                      <span className="friend-email">{u?.email}</span>
                       <span className="friend-tag-e2e">
                         <ShieldCheck size={12} className="text-emerald" /> Khóa ElGamal 256-bit sẵn sàng
                       </span>
@@ -260,7 +259,6 @@ export default function FriendRequestPanel({ onStartChat, userStatuses = {} }) {
                         <span className="friend-name">{u?.username}</span>
                         <span className="friend-time">{formatTime(reqItem.createdAt)}</span>
                       </div>
-                      <span className="friend-email">{u?.email}</span>
                     </div>
 
                     <div className="friend-card-pending-badge">
@@ -301,7 +299,6 @@ export default function FriendRequestPanel({ onStartChat, userStatuses = {} }) {
                           {isOnline ? 'Đang online' : 'Ngoại tuyến'}
                         </span>
                       </div>
-                      <span className="friend-email">{f.email}</span>
                     </div>
 
                     <div className="friend-card-actions">

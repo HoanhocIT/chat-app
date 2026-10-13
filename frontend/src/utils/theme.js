@@ -6,8 +6,20 @@
 
 export const THEMES = [
   {
+    id: 'light-white',
+    name: 'Trắng Sáng (Light Mode)',
+    accent: '#0284c7',
+    darkAccent: '#0369a1',
+    glow: 'rgba(2, 132, 199, 0.2)',
+    gradient: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+    mineGradient: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
+    mineShadow: 'rgba(2, 132, 199, 0.25)',
+    border: 'rgba(2, 132, 199, 0.3)',
+    isLight: true,
+  },
+  {
     id: 'cyber-cyan',
-    name: 'Cyber Cyan',
+    name: 'Cyber Cyan (Dark)',
     accent: '#00f2fe',
     darkAccent: '#0891b2',
     glow: 'rgba(0, 242, 254, 0.25)',
@@ -15,6 +27,7 @@ export const THEMES = [
     mineGradient: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
     mineShadow: 'rgba(2, 132, 199, 0.3)',
     border: 'rgba(0, 242, 254, 0.4)',
+    isLight: false,
   },
   {
     id: 'emerald-matrix',
@@ -76,8 +89,8 @@ export const THEMES = [
 const STORAGE_KEY = 'chat_app_theme';
 
 export function getActiveThemeId() {
-  if (typeof window === 'undefined') return 'cyber-cyan';
-  return localStorage.getItem(STORAGE_KEY) || 'cyber-cyan';
+  if (typeof window === 'undefined') return 'light-white';
+  return localStorage.getItem(STORAGE_KEY) || 'light-white';
 }
 
 export function applyTheme(themeId) {
@@ -91,6 +104,32 @@ export function applyTheme(themeId) {
   root.style.setProperty('--theme-mine-gradient', theme.mineGradient);
   root.style.setProperty('--theme-mine-shadow', theme.mineShadow);
   root.style.setProperty('--border-cyan', theme.border);
+
+  if (theme.isLight) {
+    root.style.setProperty('--bg-deep', '#f1f5f9');
+    root.style.setProperty('--bg-primary', '#ffffff');
+    root.style.setProperty('--bg-surface', '#f8fafc');
+    root.style.setProperty('--bg-card', '#ffffff');
+    root.style.setProperty('--bg-card-hover', '#f1f5f9');
+    root.style.setProperty('--bg-card-active', '#e2e8f0');
+    root.style.setProperty('--border-subtle', 'rgba(0, 0, 0, 0.08)');
+    root.style.setProperty('--border-light', 'rgba(0, 0, 0, 0.12)');
+    root.style.setProperty('--text-main', '#0f172a');
+    root.style.setProperty('--text-muted', '#64748b');
+    root.style.setProperty('--text-dim', '#94a3b8');
+  } else {
+    root.style.setProperty('--bg-deep', '#07090e');
+    root.style.setProperty('--bg-primary', '#0c101a');
+    root.style.setProperty('--bg-surface', '#121826');
+    root.style.setProperty('--bg-card', '#182235');
+    root.style.setProperty('--bg-card-hover', '#1e2c45');
+    root.style.setProperty('--bg-card-active', '#253755');
+    root.style.setProperty('--border-subtle', 'rgba(255, 255, 255, 0.07)');
+    root.style.setProperty('--border-light', 'rgba(255, 255, 255, 0.12)');
+    root.style.setProperty('--text-main', '#f8fafc');
+    root.style.setProperty('--text-muted', '#94a3b8');
+    root.style.setProperty('--text-dim', '#64748b');
+  }
 
   localStorage.setItem(STORAGE_KEY, theme.id);
   return theme;
