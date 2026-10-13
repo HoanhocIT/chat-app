@@ -90,6 +90,37 @@ export default function ConversationList({ activeId, onSelect, userStatuses = {}
               <ul className="search-results-list">
                 {results.map((u) => {
                   const isOnline = userStatuses[u._id] === 'online' || u.status === 'online';
+                  const isFriend = u.friendshipStatus === 'friend';
+                  const isSent = u.friendshipStatus === 'sent';
+                  const isReceived = u.friendshipStatus === 'received';
+
+                  async function handleFriendAction(e) {
+                    e.stopPropagation();
+                    if (isFriend) {
+                      startConversation(u._id);
+                    } else if (isSent) {
+                      // Đã gửi lời mời
+                    } else if (isReceived) {
+                      try {
+                        await http.put(`/friends/accept/${u.requestId}`);
+                        startConversation(u._id);
+                      } catch (err) {
+                        alert(err.response?.data?.error || 'Lỗi chấp nhận kết bạn');
+                      }
+                    } else {
+                      try {
+                        await http.post(`/friends/request/${u._id}`);
+                        setResults((prev) =>
+                          prev.map((item) =>
+                            item._id === u._id ? { ...item, friendshipStatus: 'sent' } : item
+                          )
+                        );
+                      } catch (err) {
+                        alert(err.response?.data?.error || 'Lỗi gửi kết bạn');
+                      }
+                    }
+                  }
+
                   return (
                     <li key={u._id} onClick={() => startConversation(u._id)} className="search-user-item">
                       <div
@@ -102,13 +133,27 @@ export default function ConversationList({ activeId, onSelect, userStatuses = {}
                       <div className="search-user-info">
                         <span className="search-user-name">{u.username}</span>
                         <span className="search-user-status">
-                          {isOnline ? 'Đang trực tuyến' : 'Ngoại tuyến'}
+                          {isFriend ? 'Bạn bè' : isSent ? 'Đã gửi lời mời' : isReceived ? 'Chờ bạn đồng ý' : (isOnline ? 'Đang trực tuyến' : 'Ngoại tuyến')}
                         </span>
                       </div>
-                      <button className="btn-chat-action">
-                        <UserPlus size={14} />
-                        <span>Nhắn</span>
-                      </button>
+
+                      {isFriend ? (
+                        <button className="btn-chat-action btn-is-friend" type="button" onClick={handleFriendAction}>
+                          <MessageSquare size={13} />
+                          <span>Nhắn tin</span>
+                        </button>
+                      ) : isSent ? (
+                        <span className="badge-request-sent">Đã gửi</span>
+                      ) : isReceived ? (
+                        <button className="btn-chat-action btn-accept-mini" type="button" onClick={handleFriendAction}>
+                          <span>Đồng ý</span>
+                        </button>
+                      ) : (
+                        <button className="btn-chat-action btn-add-friend" type="button" onClick={handleFriendAction}>
+                          <UserPlus size={13} />
+                          <span>Kết bạn</span>
+                        </button>
+                      )}
                     </li>
                   );
                 })}

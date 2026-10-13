@@ -114,6 +114,7 @@ export default function Chat() {
           userStatuses={userStatuses}
           onBack={() => setActiveId(null)}
           onOpenThemeModal={() => setShowThemeModal(true)}
+          onSelectConversation={(id) => setActiveId(id)}
         />
       </main>
 

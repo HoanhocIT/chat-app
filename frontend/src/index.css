@@ -2312,3 +2312,289 @@ button {
   background: rgba(255, 255, 255, 0.02);
 }
 
+/* ==========================================================================
+   FRIEND REQUEST PANEL & FRIEND MANAGEMENT STYLES
+   ========================================================================== */
+.friend-request-panel {
+  width: 100%;
+  max-width: 680px;
+  margin-top: 18px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.friend-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 12px;
+}
+
+.friend-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text-main);
+}
+
+.friend-panel-tabs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-surface);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+}
+
+.friend-tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.friend-tab-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.friend-tab-btn.active {
+  background: var(--cyan-dark);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(8, 145, 178, 0.4);
+}
+
+.badge-count-red {
+  background: var(--red-alert);
+  color: #fff;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  min-width: 16px;
+  text-align: center;
+}
+
+.friend-panel-body {
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.friend-requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.friend-request-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  transition: all 0.2s ease;
+}
+
+.friend-request-card:hover {
+  border-color: var(--border-light);
+  background: var(--bg-card-hover);
+}
+
+.friend-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.friend-card-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.friend-name {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-main);
+}
+
+.friend-time {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.friend-email {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.friend-tag-e2e {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: var(--emerald-neon);
+  margin-top: 2px;
+}
+
+.friend-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-friend-accept {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #059669;
+  color: #fff;
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.btn-friend-accept:hover {
+  background: #10b981;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.35);
+}
+
+.btn-friend-reject {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  padding: 6px 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.btn-friend-reject:hover {
+  background: rgba(244, 63, 94, 0.2);
+  color: var(--red-alert);
+}
+
+.btn-chat-with-friend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-cyan);
+  color: var(--cyan-neon);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.btn-chat-with-friend:hover {
+  background: var(--cyan-neon);
+  color: var(--bg-deep);
+}
+
+.friend-card-pending-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--amber-alert);
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+}
+
+.friend-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 28px 16px;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 13.5px;
+}
+
+.friend-empty-state .sub {
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+
+.friend-request-toast {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-cyan);
+  color: var(--cyan-neon);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 12.5px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: slide-up-reply 0.2s ease;
+}
+
+/* Badges & Buttons in Search Dropdown */
+.btn-add-friend {
+  background: rgba(0, 242, 254, 0.15) !important;
+  color: var(--cyan-neon) !important;
+  border: 1px solid var(--border-cyan) !important;
+}
+.btn-add-friend:hover {
+  background: var(--cyan-neon) !important;
+  color: var(--bg-deep) !important;
+}
+
+.btn-is-friend {
+  background: rgba(16, 185, 129, 0.15) !important;
+  color: var(--emerald-neon) !important;
+  border: 1px solid var(--border-emerald) !important;
+}
+
+.btn-accept-mini {
+  background: #059669 !important;
+  color: #fff !important;
+}
+
+.badge-request-sent {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--amber-alert);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+

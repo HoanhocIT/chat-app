@@ -1,19 +1,64 @@
 const User = require('../models/User');
 const Conversation = require('../models/Conversation');
 
-/** GET /api/users/search?q=... — tìm user theo username để bắt đầu chat */
+/** GET /api/users/search?q=... — tìm user theo username để kết bạn hoặc chat */
 async function searchUsers(req, res) {
   const q = (req.query.q || '').trim();
   if (!q) return res.json([]);
+
+  const FriendRequest = require('../models/FriendRequest');
+  const currentUser = await User.findById(req.userId).select('friends');
+  const friendsList = (currentUser?.friends || []).map((id) => id.toString());
 
   const users = await User.find({
     username: { $regex: q, $options: 'i' },
     _id: { $ne: req.userId },
   })
-    .select('username avatarUrl status')
-    .limit(20);
+    .select('username email avatarUrl status')
+    .limit(20)
+    .lean();
 
-  res.json(users);
+  const userIds = users.map((u) => u._id);
+
+  // Lấy các lời mời kết bạn liên quan
+  const pendingRequests = await FriendRequest.find({
+    status: 'pending',
+    $or: [
+      { sender: req.userId, receiver: { $in: userIds } },
+      { sender: { $in: userIds }, receiver: req.userId },
+    ],
+  });
+
+  const enrichedUsers = users.map((u) => {
+    const isFriend = friendsList.includes(u._id.toString());
+    const outgoing = pendingRequests.find(
+      (r) => r.sender.toString() === req.userId && r.receiver.toString() === u._id.toString()
+    );
+    const incoming = pendingRequests.find(
+      (r) => r.receiver.toString() === req.userId && r.sender.toString() === u._id.toString()
+    );
+
+    let friendshipStatus = 'none'; // none | friend | sent | received
+    let requestId = null;
+
+    if (isFriend) {
+      friendshipStatus = 'friend';
+    } else if (outgoing) {
+      friendshipStatus = 'sent';
+      requestId = outgoing._id;
+    } else if (incoming) {
+      friendshipStatus = 'received';
+      requestId = incoming._id;
+    }
+
+    return {
+      ...u,
+      friendshipStatus,
+      requestId,
+    };
+  });
+
+  res.json(enrichedUsers);
 }
 
 /**

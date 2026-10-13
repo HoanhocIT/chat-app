@@ -11,6 +11,7 @@ import { getAvatarGradient, getInitials, formatTime } from '../utils/avatar';
 import { playSendSound, playReceiveSound, isSoundEnabled, setSoundEnabled } from '../utils/sound';
 import CryptoModal from './CryptoModal';
 import KeyModal from './KeyModal';
+import FriendRequestPanel from './FriendRequestPanel';
 import {
   Send,
   Shield,
@@ -89,7 +90,7 @@ async function decryptAndVerify(message, myUserId, privateKey) {
   }
 }
 
-export default function ChatWindow({ conversationId, userStatuses = {}, onBack, onOpenThemeModal }) {
+export default function ChatWindow({ conversationId, userStatuses = {}, onBack, onOpenThemeModal, onSelectConversation }) {
   const { user, privateKey } = useAuth();
   const [conversation, setConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -301,8 +302,8 @@ export default function ChatWindow({ conversationId, userStatuses = {}, onBack, 
       <div className="chat-empty-view">
         <div className="chat-empty-card">
           <div className="empty-shield-icon-wrapper">
-            <Shield size={48} className="shield-icon-glow" />
-            <Sparkles size={20} className="sparkle-accent" />
+            <Shield size={44} className="shield-icon-glow" />
+            <Sparkles size={18} className="sparkle-accent" />
           </div>
           <h2>Chat-app — Bảo mật Đầu-Cuối Toàn Diện</h2>
           <p className="empty-desc">
@@ -314,10 +315,13 @@ export default function ChatWindow({ conversationId, userStatuses = {}, onBack, 
             <span className="sec-pill">⚡ AES-256-GCM</span>
             <span className="sec-pill">🛡️ ElGamal Signature</span>
           </div>
-          <div className="empty-action-hint">
-            👈 Hãy chọn một cuộc trò chuyện từ danh sách hoặc tìm bạn bè để bắt đầu.
-          </div>
         </div>
+
+        {/* Khung Thông báo & Quản lý Lời mời kết bạn */}
+        <FriendRequestPanel
+          onStartChat={(id, conv) => onSelectConversation && onSelectConversation(id, conv)}
+          userStatuses={userStatuses}
+        />
       </div>
     );
   }

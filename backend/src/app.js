@@ -14,6 +14,7 @@ const connectDB = require('./config/db');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const conversationRoutes = require('./routes/conversations');
+const friendRoutes = require('./routes/friends');
 const registerChatSocket = require('./sockets/chatSocket');
 
 const app = express();
@@ -51,6 +52,9 @@ app.use(express.json({ limit: '5mb' })); // đủ lớn cho payload mã hóa + m
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/conversations', conversationRoutes);
+app.use('/api/friends', friendRoutes);
+
+app.set('io', io);
 
 app.get('/api/health', (req, res) => res.json({ ok: true, status: 'online', time: new Date() }));
 

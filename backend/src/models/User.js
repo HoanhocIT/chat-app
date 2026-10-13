@@ -27,6 +27,9 @@ const UserSchema = new mongoose.Schema(
     status: { type: String, enum: ['online', 'offline'], default: 'offline' },
     lastSeenAt: { type: Date, default: Date.now },
 
+    // Danh sách bạn bè
+    friends: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+
     // Quên mật khẩu & Đặt lại mật khẩu
     resetPasswordOTP: { type: String, default: null },
     resetPasswordExpires: { type: Date, default: null },

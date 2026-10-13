@@ -30,6 +30,9 @@ function registerChatSocket(io) {
     User.findByIdAndUpdate(socket.userId, { status: 'online' }).exec();
     socket.broadcast.emit('user_status_changed', { userId: socket.userId, status: 'online' });
 
+    // Tự động join vào room cá nhân để nhận thông báo kết bạn riêng
+    socket.join(`user:${socket.userId}`);
+
     // Client join vào room của từng conversation họ tham gia (gọi sau khi kết nối)
     socket.on('join_conversation', (conversationId) => {
       socket.join(`conversation:${conversationId}`);
