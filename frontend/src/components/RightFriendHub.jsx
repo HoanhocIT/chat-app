@@ -390,15 +390,22 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
                       </div>
 
                       <div className="hub-card-actions">
+                        {/* Nút Nhắn tin ngay cạnh nút Kết bạn */}
+                        <button
+                          type="button"
+                          className="btn-chat-with-friend"
+                          onClick={() => handleChatNow(u._id)}
+                          title={`Mở cuộc trò chuyện mã hóa với ${u.username}`}
+                        >
+                          <MessageSquare size={14} className="text-cyan" />
+                          <span>Nhắn tin</span>
+                        </button>
+
+                        {/* Nút Trạng thái Kết bạn */}
                         {isFriend ? (
-                          <button
-                            type="button"
-                            className="btn-chat-with-friend"
-                            onClick={() => handleChatNow(u._id)}
-                          >
-                            <MessageSquare size={14} className="text-cyan" />
-                            <span>Nhắn tin</span>
-                          </button>
+                          <span className="badge-request-sent" style={{ background: 'rgba(16, 185, 129, 0.1)', color: 'var(--emerald-neon)', borderColor: 'rgba(16, 185, 129, 0.3)' }}>
+                            ✓ Đã là bạn bè
+                          </span>
                         ) : isSent ? (
                           <span className="badge-request-sent">Đã gửi lời mời</span>
                         ) : isReceived ? (
@@ -408,13 +415,14 @@ export default function RightFriendHub({ onStartChat, userStatuses = {}, onOpenC
                             onClick={() => handleAccept(u.requestId)}
                           >
                             <Check size={14} />
-                            <span>Đồng ý kết bạn</span>
+                            <span>Đồng ý</span>
                           </button>
                         ) : (
                           <button
                             type="button"
                             className="btn-friend-add-large"
                             onClick={() => handleSendRequest(u._id)}
+                            title="Gửi lời mời kết bạn"
                           >
                             <UserPlus size={14} />
                             <span>Kết bạn</span>

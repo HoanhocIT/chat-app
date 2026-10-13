@@ -31,7 +31,8 @@ import {
   Reply,
   CornerDownRight,
   X,
-  Palette
+  Palette,
+  Home
 } from 'lucide-react';
 
 const QUICK_EMOJIS = ['👋', '😀', '❤️', '🔥', '👍', '🔐', '🛡️', '⚡', '🚀', '💻', '🎉', '✨'];
@@ -358,6 +359,17 @@ export default function ChatWindow({
         </div>
 
         <div className="chat-header-actions">
+          {onBack && (
+            <button
+              className="header-badge-btn"
+              onClick={onBack}
+              title="Trở về Trang chủ / Trung tâm Bạn bè"
+            >
+              <Home size={14} className="text-cyan" />
+              <span>Trang chủ</span>
+            </button>
+          )}
+
           <button
             className="header-badge-btn"
             onClick={() => setShowKeyModal(true)}

@@ -7,7 +7,7 @@ import KeyModal from '../components/KeyModal';
 import ThemeModal from '../components/ThemeModal';
 import ProfileModal from '../components/ProfileModal';
 import CreateGroupModal from '../components/CreateGroupModal';
-import { Shield, Key, LogOut, AlertTriangle, ShieldCheck, Cpu, Palette, User, Users } from 'lucide-react';
+import { Shield, Key, LogOut, AlertTriangle, ShieldCheck, Cpu, Palette, User, Users, Home } from 'lucide-react';
 import { getAvatarGradient, getInitials } from '../utils/avatar';
 
 export default function Chat() {
@@ -37,7 +37,12 @@ export default function Chat() {
       <aside className="chat-sidebar-rail">
         {/* App Logo & Branding */}
         <div className="sidebar-brand-header">
-          <div className="brand-logo-area">
+          <div
+            className="brand-logo-area clickable-profile"
+            onClick={() => setActiveId(null)}
+            title="Bấm để trở về Trang chủ"
+            style={{ cursor: 'pointer', flex: 1 }}
+          >
             <div className="brand-shield-glow">
               <Shield size={20} />
             </div>
@@ -46,6 +51,15 @@ export default function Chat() {
               <span className="brand-tagline">ElGamal + AES-256</span>
             </div>
           </div>
+
+          <button
+            className={`btn-footer-icon ${!activeId ? 'text-cyan' : ''}`}
+            onClick={() => setActiveId(null)}
+            title="Trở về Trang chủ (Trung tâm bạn bè)"
+            type="button"
+          >
+            <Home size={18} />
+          </button>
         </div>
 
         {/* Warning banner if no private key */}

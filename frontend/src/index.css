@@ -532,9 +532,13 @@ button {
 }
 
 .sidebar-brand-header {
-  padding: 18px 20px;
+  padding: 16px 18px;
   border-bottom: 1px solid var(--border-subtle);
   background: var(--bg-surface);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 .brand-logo-area {
   display: flex;
