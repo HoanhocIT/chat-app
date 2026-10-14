@@ -10,27 +10,19 @@ import {
   RefreshCw,
   X,
   ShieldAlert,
-  Binary,
-  Zap,
-  HelpCircle,
   Activity,
-  Layers,
   Clock,
   Database,
-  TrendingUp,
-  Server,
-  Cpu,
-  CheckCircle
 } from 'lucide-react';
 import * as elgamal from '../crypto/elgamal';
 import * as hybrid from '../crypto/hybrid';
 import * as signature from '../crypto/signature';
 import { encryptAES, generateAesKey } from '../crypto/aes';
-import { sha256, md5 } from '../crypto/hash';
+import { sha256 } from '../crypto/hash';
 import { truncateHex } from '../utils/avatar';
 
 export default function CryptoModal({ message, isOpen, onClose }) {
-  const [activeTab, setActiveTab] = useState('details'); // 'details' | 'tamper' | 'hash_compare' | 'benchmark' | 'security'
+  const [activeTab, setActiveTab] = useState('details'); // 'details' | 'tamper' | 'benchmark'
   const [copied, setCopied] = useState(false);
 
   // Trạng thái cho tab Thử nghiệm giả mạo (Tamper Lab)
@@ -38,14 +30,7 @@ export default function CryptoModal({ message, isOpen, onClose }) {
   const [tamperResult, setTamperResult] = useState(null);
   const [testing, setTesting] = useState(false);
 
-  // Trạng thái cho tab Đối chiếu MD5 vs SHA-256
-  const [customHashInput, setCustomHashInput] = useState('Dữ liệu thử nghiệm MD5 vs SHA-256');
-  const [md5Output, setMd5Output] = useState('');
-  const [shaOutput, setShaOutput] = useState('');
-  const [benchmarkResult, setBenchmarkResult] = useState(null);
-  const [benchmarking, setBenchmarking] = useState(false);
-
-  // Trạng thái cho tab Đo lường Hiệu năng & Kích thước (Mục 9 & 10)
+  // Trạng thái cho tab Đo lường Hiệu năng & Kích thước
   const [customBenchText, setCustomBenchText] = useState(
     'Bản tin kiểm thử hiệu năng mã hóa lai AES-256-GCM + ElGamal và chữ ký số'
   );
@@ -59,34 +44,19 @@ export default function CryptoModal({ message, isOpen, onClose }) {
     }
   }, [message]);
 
-  useEffect(() => {
-    if (customHashInput !== undefined) {
-      try {
-        setMd5Output(md5(customHashInput));
-        sha256(customHashInput).then(setShaOutput);
-      } catch (err) {
-        // ignore
-      }
-    }
-  }, [customHashInput]);
-
   if (!isOpen || !message) return null;
 
   const raw = message.raw || {};
   const encrypted = raw.encryptedMessage || {};
   const sig = raw.signature || {};
   const senderKey = raw.senderPublicKey || {};
-  const currentMsgMd5 = message.text ? md5(message.text) : '—';
 
   function handleCopyJson() {
     const payload = {
       messageId: message._id,
       sender: message.senderName,
       plaintext: message.text,
-      hashes: {
-        sha256: message.hash,
-        md5: currentMsgMd5,
-      },
+      sha256: message.hash,
       encryptedMessage: encrypted,
       signature: sig,
       senderPublicKey: senderKey,
@@ -116,41 +86,7 @@ export default function CryptoModal({ message, isOpen, onClose }) {
     setTamperResult(null);
   }
 
-  async function handleRunBenchmark() {
-    setBenchmarking(true);
-    setTimeout(async () => {
-      try {
-        const iters = 10000;
-        const testStr = 'benchmark_test_data_sample_string_';
-
-        // Đo MD5 10.000 lần
-        const t1 = performance.now();
-        for (let i = 0; i < iters; i++) {
-          md5(testStr + i);
-        }
-        const t2 = performance.now();
-
-        // Đo SHA-256 500 lần rồi quy đổi
-        const shaIters = 500;
-        const t3 = performance.now();
-        for (let i = 0; i < shaIters; i++) {
-          await sha256(testStr + i);
-        }
-        const t4 = performance.now();
-        const scaledShaTime = ((t4 - t3) * (iters / shaIters)).toFixed(1);
-
-        setBenchmarkResult({
-          md5Ms: (t2 - t1).toFixed(1),
-          shaMs: scaledShaTime,
-          iterations: iters,
-        });
-      } finally {
-        setBenchmarking(false);
-      }
-    }, 60);
-  }
-
-  // Đo lường toàn diện: Thời gian mã hóa/giải mã và Kích thước dữ liệu (Mục 9 & 10)
+  // Đo lường toàn diện: Thời gian mã hóa/giải mã và Kích thước dữ liệu
   async function runFullCryptoBenchmark() {
     setIsBenchmarkingAll(true);
     setTimeout(async () => {
@@ -241,7 +177,7 @@ export default function CryptoModal({ message, isOpen, onClose }) {
             </div>
             <div>
               <h3>Hộp soi mã hóa & Thực nghiệm mật mã</h3>
-              <p>Mã hóa lai AES-256 + Trao khóa ElGamal + Chữ ký số ElGamal + Đánh giá hiệu năng</p>
+              <p>Mã hóa lai AES-256 + Trao khóa ElGamal + Chữ ký số ElGamal & SHA-256 + Đo lường hiệu năng</p>
             </div>
           </div>
           <div className="crypto-modal-header-actions">
@@ -272,25 +208,11 @@ export default function CryptoModal({ message, isOpen, onClose }) {
             Giả mạo (Tamper)
           </button>
           <button
-            className={`crypto-tab-btn ${activeTab === 'hash_compare' ? 'active' : ''}`}
-            onClick={() => setActiveTab('hash_compare')}
-          >
-            <Binary size={14} />
-            MD5 vs SHA-256
-          </button>
-          <button
             className={`crypto-tab-btn ${activeTab === 'benchmark' ? 'active' : ''}`}
             onClick={() => setActiveTab('benchmark')}
           >
             <Activity size={14} />
-            Thời gian & Kích thước (Mục 9 & 10)
-          </button>
-          <button
-            className={`crypto-tab-btn ${activeTab === 'security' ? 'active' : ''}`}
-            onClick={() => setActiveTab('security')}
-          >
-            <Layers size={14} />
-            Đánh giá An toàn (Mục 11)
+            Thời gian & Kích thước
           </button>
         </div>
 
@@ -403,7 +325,7 @@ export default function CryptoModal({ message, isOpen, onClose }) {
                 <h4>🧪 Giả lập tấn công Man-in-the-Middle (MITM)</h4>
                 <p>
                   Hãy thử sửa một ký tự bất kỳ dưới đây, sau đó nhấn nút 
-                  <strong>"Kiểm tra lại chữ ký ElGamal"</strong> để chứng minh cơ chế chữ ký số ElGamal phát hiện giả mạo ngay tức thì.
+                  <strong>"Kiểm tra lại chữ ký ElGamal"</strong> để chứng minh cơ chế chữ ký số ElGamal kết hợp SHA-256 phát hiện giả mạo ngay tức thì.
                 </p>
               </div>
 
@@ -447,7 +369,7 @@ export default function CryptoModal({ message, isOpen, onClose }) {
                     <p>
                       {tamperResult.verified
                         ? 'Nội dung khớp từng bit với bản gốc người gửi đã ký bằng khóa riêng tư ElGamal.'
-                        : 'Dù chỉ sai khác 1 ký tự, giá trị băm m bị thay đổi khiến phương trình xác thực ElGamal g^m ≢ y^r · r^s (mod p).'}
+                        : 'Dù chỉ sai khác 1 ký tự, giá trị băm m = SHA-256 bị thay đổi khiến phương trình xác thực ElGamal g^m ≢ y^r · r^s (mod p).'}
                     </p>
                     <div className="tamper-meta-hashes">
                       <div>SHA-256 hiện tại: <code>{tamperResult.hash}</code></div>
@@ -456,98 +378,8 @@ export default function CryptoModal({ message, isOpen, onClose }) {
                 </div>
               )}
             </div>
-          ) : activeTab === 'hash_compare' ? (
-            /* TAB THỰC NGHIỆM ĐỐI CHIẾU MD5 VS SHA-256 */
-            <div className="crypto-hash-lab">
-              <div className="hash-role-callout">
-                <div className="flex-center gap-2 mb-1">
-                  <HelpCircle size={16} className="text-cyan" />
-                  <strong>Vai trò của MD5 trong đề tài đồ án</strong>
-                </div>
-                <p>
-                  • <strong>MD5 (128-bit)</strong>: Được đưa vào đề tài để <strong>đối chứng, so sánh thực nghiệm tốc độ và chiều dài mã băm</strong> trong báo cáo. Đã bị bẻ gãy va chạm (Collision Attack) từ năm 2004 nên <em>không dùng cho chữ ký số thật</em>.<br />
-                  • <strong>SHA-256 (256-bit)</strong>: Dùng trong hệ thống thực tế để băm thông điệp trước khi ký số ElGamal và kiểm tra toàn vẹn file.
-                </p>
-              </div>
-
-              {/* Băm của tin nhắn hiện tại */}
-              <div className="crypto-card">
-                <div className="crypto-card-head">
-                  <strong>Mã băm của tin nhắn đang chọn</strong>
-                  <span className="crypto-tag tag-cyan">Bản rõ: "{truncateHex(message.text, 20, 10)}"</span>
-                </div>
-                <div className="crypto-param-grid">
-                  <div className="crypto-param-item">
-                    <label>MD5 (128 bit / 32 hex):</label>
-                    <code className="text-amber">{currentMsgMd5}</code>
-                  </div>
-                  <div className="crypto-param-item">
-                    <label>SHA-256 (256 bit / 64 hex):</label>
-                    <code className="text-emerald">{message.hash || '—'}</code>
-                  </div>
-                </div>
-              </div>
-
-              {/* Khu vực nhập để test MD5 tức thì */}
-              <div className="crypto-card">
-                <div className="crypto-card-head">
-                  <div className="flex-center gap-2">
-                    <Zap size={15} className="text-cyan" />
-                    <strong>Công cụ kiểm tra & tính MD5 tức thời</strong>
-                  </div>
-                  <span className="text-dim text-xs">Thời gian thực</span>
-                </div>
-                <div className="mb-2">
-                  <label className="text-xs text-dim block mb-1">Nhập chuỗi văn bản bất kỳ để băm:</label>
-                  <input
-                    className="hash-test-input"
-                    value={customHashInput}
-                    onChange={(e) => setCustomHashInput(e.target.value)}
-                    placeholder="Gõ văn bản để kiểm tra MD5..."
-                  />
-                </div>
-                <div className="crypto-param-grid">
-                  <div className="crypto-param-item">
-                    <label>Kết quả MD5 (128-bit):</label>
-                    <code className="text-amber font-mono">{md5Output}</code>
-                  </div>
-                  <div className="crypto-param-item">
-                    <label>Kết quả SHA-256 (256-bit):</label>
-                    <code className="text-emerald font-mono">{shaOutput}</code>
-                  </div>
-                </div>
-              </div>
-
-              {/* Benchmark tốc độ 10.000 lượt */}
-              <div className="crypto-card">
-                <div className="crypto-card-head">
-                  <strong>Thực nghiệm tốc độ (Benchmark 10.000 lần băm)</strong>
-                  <button
-                    className="btn-run-benchmark"
-                    onClick={handleRunBenchmark}
-                    disabled={benchmarking}
-                  >
-                    {benchmarking ? 'Đang đo tốc độ...' : '⚡ Bắt đầu đo tốc độ'}
-                  </button>
-                </div>
-                {benchmarkResult && (
-                  <div className="benchmark-results-grid">
-                    <div className="benchmark-stat-card">
-                      <span className="stat-title">MD5 (10.000 lần)</span>
-                      <span className="stat-value text-amber">{benchmarkResult.md5Ms} ms</span>
-                      <span className="stat-sub">128-bit digest</span>
-                    </div>
-                    <div className="benchmark-stat-card">
-                      <span className="stat-title">SHA-256 (10.000 lần)</span>
-                      <span className="stat-value text-emerald">{benchmarkResult.shaMs} ms</span>
-                      <span className="stat-sub">256-bit digest</span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          ) : activeTab === 'benchmark' ? (
-            /* TAB ĐO LƯỜNG HIỆU NĂNG & KÍCH THƯỚC (MỤC 9 & 10) */
+          ) : (
+            /* TAB ĐO LƯỜNG HIỆU NĂNG & KÍCH THƯỚC */
             <div className="crypto-benchmark-tab flex flex-col gap-4">
               {/* Thẻ giới thiệu mục tiêu */}
               <div className="crypto-card">
@@ -565,7 +397,7 @@ export default function CryptoModal({ message, isOpen, onClose }) {
                   </button>
                 </div>
                 <p className="crypto-hint mb-2">
-                  Đo đạc thời gian tính toán thực tế trên CPU của thiết bị và phân tích độ phình dữ liệu sau mã hóa để đưa vào báo cáo:
+                  Đo đạc thời gian tính toán thực tế trên CPU của thiết bị và phân tích độ phình dữ liệu sau mã hóa:
                 </p>
                 <div className="flex gap-2">
                   <input
@@ -577,12 +409,12 @@ export default function CryptoModal({ message, isOpen, onClose }) {
                 </div>
               </div>
 
-              {/* 1. ĐÁNH GIÁ THỜI GIAN MÃ HÓA / GIẢI MÃ (MỤC 9) */}
+              {/* 1. ĐÁNH GIÁ THỜI GIAN MÃ HÓA / GIẢI MÃ */}
               <div className="crypto-card">
                 <div className="crypto-card-head">
                   <div className="flex-center gap-2">
                     <Clock size={15} className="text-amber" />
-                    <strong>Mục 9: Đánh giá Thời Gian Mã Hóa / Giải Mã & Ký Số</strong>
+                    <strong>Đánh giá Thời Gian Mã Hóa / Giải Mã & Ký Số</strong>
                   </div>
                   <span className="crypto-tag tag-cyan">Đơn vị: Mili-giây (ms)</span>
                 </div>
@@ -618,17 +450,17 @@ export default function CryptoModal({ message, isOpen, onClose }) {
 
                 {fullBenchData && (
                   <div className="mt-3 p-3 bg-dark rounded border border-subtle text-xs text-muted leading-relaxed">
-                    💡 <strong>Nhận xét học thuật:</strong> Thời gian mã hóa lai Hybrid đạt mức cực nhanh (&lt; 20ms) nhờ kết hợp đối xứng AES-256-GCM (mã hóa văn bản với độ trễ chỉ {fullBenchData.timeAesOnly}ms) và bất đối xứng ElGamal (chỉ dùng để bọc khóa phiên AES 256-bit). Chữ ký số ElGamal mất {fullBenchData.timeSign}ms tạo và {fullBenchData.timeVerify}ms xác thực, hoàn toàn đáp ứng chuẩn nhắn tin thời gian thực mà người dùng không nhận thấy độ trễ.
+                    💡 <strong>Nhận xét:</strong> Thời gian mã hóa lai Hybrid đạt mức cực nhanh (&lt; 20ms) nhờ kết hợp đối xứng AES-256-GCM (mã hóa văn bản với độ trễ chỉ {fullBenchData.timeAesOnly}ms) và bất đối xứng ElGamal (chỉ dùng để bọc khóa phiên AES 256-bit). Chữ ký số ElGamal mất {fullBenchData.timeSign}ms tạo và {fullBenchData.timeVerify}ms xác thực, hoàn toàn đáp ứng chuẩn nhắn tin thời gian thực mà người dùng không nhận thấy độ trễ.
                   </div>
                 )}
               </div>
 
-              {/* 2. ĐÁNH GIÁ KÍCH THƯỚC DỮ LIỆU SAU MÃ HÓA (MỤC 10) */}
+              {/* 2. ĐÁNH GIÁ KÍCH THƯỚC DỮ LIỆU SAU MÃ HÓA */}
               <div className="crypto-card">
                 <div className="crypto-card-head">
                   <div className="flex-center gap-2">
                     <Database size={15} className="text-purple" />
-                    <strong>Mục 10: Đánh giá Kích Thước Dữ Liệu Sau Mã Hóa (Data Overhead)</strong>
+                    <strong>Đánh giá Kích Thước Dữ Liệu Sau Mã Hóa (Data Overhead)</strong>
                   </div>
                   {fullBenchData && (
                     <span className="crypto-tag tag-purple">
@@ -711,148 +543,6 @@ export default function CryptoModal({ message, isOpen, onClose }) {
                     Chạy đo đạc để phân tích kích thước và độ phình chi tiết từng byte của gói tin mạng.
                   </div>
                 )}
-              </div>
-            </div>
-          ) : (
-            /* TAB ĐÁNH GIÁ MỨC ĐỘ AN TOÀN & KHẢ NĂNG TRIỂN KHAI (MỤC 11) */
-            <div className="crypto-security-tab flex flex-col gap-4">
-              {/* Thẻ tổng quan */}
-              <div className="crypto-card">
-                <div className="crypto-card-head">
-                  <div className="flex-center gap-2">
-                    <ShieldCheck size={16} className="text-emerald" />
-                    <strong>Mục 11: Đánh Giá Mức Độ An Toàn & Khả Năng Triển Khai Thực Tế</strong>
-                  </div>
-                  <span className="crypto-tag tag-cyan">Báo cáo Mật mã học</span>
-                </div>
-                <p className="crypto-hint">
-                  Đánh giá toàn diện cơ sở toán học, khả năng chống tấn công mạng và tính khả thi khi đưa ứng dụng vào môi trường sản xuất thực tế:
-                </p>
-              </div>
-
-              {/* 1. BẢNG MA TRẬN ĐÁNH GIÁ AN TOÀN */}
-              <div className="crypto-card">
-                <div className="crypto-card-head">
-                  <div className="flex-center gap-2">
-                    <Lock size={15} className="text-cyan" />
-                    <strong>1. Ma Trận Đánh Giá Mức Độ An Toàn Của Từng Thuật Toán</strong>
-                  </div>
-                </div>
-                <div className="crypto-table-wrap mt-2">
-                  <table className="crypto-eval-table">
-                    <thead>
-                      <tr>
-                        <th>Thuật toán</th>
-                        <th>Cơ sở an toàn / Vai trò</th>
-                        <th>Khả năng chống tấn công</th>
-                        <th>Đánh giá an toàn</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td><strong className="text-cyan">AES-256-GCM</strong></td>
-                        <td>Chuẩn đối xứng NIST, mã hóa Galois/Counter Mode với IV ngẫu nhiên 96-bit.</td>
-                        <td>Chống tấn công bản rõ chọn lọc (CPA), bản mã chọn lọc (CCA), tự kèm kiểm tra toàn vẹn AEAD.</td>
-                        <td><span className="text-emerald font-semibold">Tuyệt đối (Cấp quân sự)</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong className="text-purple">ElGamal 256-bit</strong></td>
-                        <td>Bài toán Logarithm rời rạc (DLP) trên nhóm hữu hạn $\mathbb{Z}_p^*$. Dùng trao khóa phiên.</td>
-                        <td>Chống nghe lén (Eavesdropping). Server chỉ chuyển tiếp khối số nguyên lớn, không có private key.</td>
-                        <td><span className="text-emerald font-semibold">An toàn cao cho Demo</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong className="text-amber">Chữ ký số ElGamal</strong></td>
-                        <td>Xác thực thông điệp qua cặp chữ ký số $(r, s)$ dựa trên khóa bí mật người gửi.</td>
-                        <td>Chống giả mạo (Anti-Tampering) và chống chối bỏ (Non-Repudiation) 100%.</td>
-                        <td><span className="text-emerald font-semibold">Chống giả mạo 100%</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong className="text-emerald">SHA-256</strong></td>
-                        <td>Hàm băm 1 chiều an toàn 256-bit, tạo tóm lược thông điệp trước khi ký số.</td>
-                        <td>Chống tiền ảnh (Pre-image resistance) và chống va chạm (Collision resistance).</td>
-                        <td><span className="text-emerald font-semibold">Chuẩn công nghiệp</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong className="text-rose-400">MD5 (Đối chứng)</strong></td>
-                        <td>Hàm băm 128-bit cũ, đưa vào đề tài để so sánh thực nghiệm tốc độ và chiều dài.</td>
-                        <td>Đã bị phá vỡ va chạm từ 2004. Hệ thống <em>chỉ dùng để đối chiếu</em>, không dùng bảo mật.</td>
-                        <td><span className="text-rose-400 font-semibold">Kém (Chỉ đối chứng)</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* 2. ĐÁNH GIÁ MÔ HÌNH ZERO-KNOWLEDGE & E2EE */}
-              <div className="crypto-card">
-                <div className="crypto-card-head">
-                  <div className="flex-center gap-2">
-                    <Server size={15} className="text-emerald" />
-                    <strong>2. Mô Hình Bảo Mật E2EE & Kiến Trúc Zero-Knowledge</strong>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3 mt-2 text-xs leading-relaxed">
-                  <div className="p-3 bg-dark rounded border border-subtle">
-                    <div className="font-semibold text-cyan mb-1 flex-center gap-1">
-                      <CheckCircle size={14} /> Server Zero-Knowledge
-                    </div>
-                    <p className="text-muted">
-                      Máy chủ lưu trữ MongoDB hoàn toàn không giữ Private Key của bất kỳ ai. Mọi tác vụ sinh khóa, mã hóa và ký số diễn ra 100% tại trình duyệt máy khách (Client-side Web Crypto & BigInt). Kể cả khi cơ sở dữ liệu bị lộ, kẻ tấn công cũng chỉ thấy các chuỗi hex vô nghĩa.
-                    </p>
-                  </div>
-                  <div className="p-3 bg-dark rounded border border-subtle">
-                    <div className="font-semibold text-emerald mb-1 flex-center gap-1">
-                      <CheckCircle size={14} /> Chống Tấn Công Giữa Đường (MITM)
-                    </div>
-                    <p className="text-muted">
-                      Nhờ chữ ký số ElGamal kèm theo mỗi tin nhắn, nếu kẻ trung gian sửa đổi nội dung tin nhắn trên đường truyền, giá trị băm sẽ không khớp và phương trình xác thực ElGamal $g^m \equiv y^r \cdot r^s \pmod p$ lập tức báo vi phạm.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* 3. KHẢ NĂNG TRIỂN KHAI THỰC TẾ & MỞ RỘNG */}
-              <div className="crypto-card">
-                <div className="crypto-card-head">
-                  <div className="flex-center gap-2">
-                    <TrendingUp size={15} className="text-cyan" />
-                    <strong>3. Đánh Giá Khả Năng Triển Khai Thực Tế (Scalability & Feasibility)</strong>
-                  </div>
-                </div>
-                <div className="crypto-table-wrap mt-2">
-                  <table className="crypto-eval-table">
-                    <thead>
-                      <tr>
-                        <th>Khía cạnh</th>
-                        <th>Phân tích thực tế trong dự án</th>
-                        <th>Tính khả thi & Đánh giá</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td><strong>Tải tính toán (CPU)</strong></td>
-                        <td>Gánh nặng mã hóa phân tán hoàn toàn về Client (trình duyệt). Server chỉ đóng vai trò chuyển tiếp I/O phi đồng bộ (Node.js Event Loop).</td>
-                        <td><span className="text-emerald">Cực kỳ tối ưu, server chịu tải hàng nghìn kết nối đồng thời.</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong>Băng thông mạng</strong></td>
-                        <td>Độ phình dữ liệu tăng khoảng 300-500 bytes cho mỗi tin nhắn (do khóa phiên ElGamal và chữ ký).</td>
-                        <td><span className="text-emerald">Phù hợp mạng Internet hiện đại, không gây nghẽn băng thông.</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong>Khả năng Đóng gói & Deploy</strong></td>
-                        <td>Hệ thống đã cấu hình Single-Service (Express phục vụ React), hỗ trợ Docker, deploy 1-click lên Render/VPS có sẵn SSL và WebSocket.</td>
-                        <td><span className="text-emerald">Sẵn sàng đưa vào vận hành thực tế 100%.</span></td>
-                      </tr>
-                      <tr>
-                        <td><strong>Hướng phát triển tương lai</strong></td>
-                        <td>Nâng cấp khóa ElGamal lên 2048-bit hoặc chuyển dịch sang Đường cong Elliptic (ECC: ECDH Curve25519 + Ed25519) để khóa ngắn hơn và chạy nhanh hơn trên thiết bị di động yếu.</td>
-                        <td><span className="text-cyan">Định hướng nâng cấp công nghiệp rõ ràng.</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
               </div>
             </div>
           )}

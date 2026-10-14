@@ -1,13 +1,13 @@
 /**
  * demo.js
  * Chạy: node src/crypto/demo.js
- * Kiểm tra toàn bộ luồng: sinh khóa → mã hóa hybrid → giải mã → ký số → xác thực → so sánh hash.
+ * Kiểm tra toàn bộ luồng: sinh khóa → mã hóa hybrid → giải mã → ký số → xác thực → băm SHA-256.
  */
 
 const elgamal = require('./elgamal');
 const hybrid = require('./hybrid');
 const signature = require('./signature');
-const { sha256, md5, compareHashSpeed } = require('./hash');
+const { sha256 } = require('./hash');
 
 console.log('=== 1. Sinh cặp khóa ElGamal (256-bit demo) ===');
 console.time('Sinh khóa');
@@ -34,7 +34,5 @@ console.log('Xác thực chữ ký hợp lệ:', isValid ? '✅ HỢP LỆ' : '�
 const tamperedValid = signature.verify('Nội dung đã bị sửa!', sig, publicKey);
 console.log('Xác thực với nội dung bị sửa:', tamperedValid ? '❌ (lỗi bảo mật!)' : '✅ Phát hiện giả mạo đúng');
 
-console.log('\n=== 4. So sánh SHA-256 vs MD5 ===');
+console.log('\n=== 4. Băm an toàn SHA-256 (256 bit) ===');
 console.log('SHA-256("hello"):', sha256('hello'), '(256 bit)');
-console.log('MD5("hello")   :', md5('hello'), '(128 bit)');
-console.log('Benchmark tốc độ (10.000 lần băm):', compareHashSpeed('sample data'));

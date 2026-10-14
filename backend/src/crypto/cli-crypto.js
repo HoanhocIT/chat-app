@@ -17,7 +17,7 @@ const aes = require('./aes');
 const elgamal = require('./elgamal');
 const signature = require('./signature');
 const hybrid = require('./hybrid');
-const { sha256, md5, compareHashSpeed } = require('./hash');
+const { sha256 } = require('./hash');
 
 const LINE = '─'.repeat(75);
 const DOUBLE_LINE = '═'.repeat(75);
@@ -162,13 +162,13 @@ function demoSignature() {
 }
 
 // ============================================================================
-// 4. DEMO SHA-256 VS MD5
+// 4. DEMO HÀM BĂM SHA-256
 // ============================================================================
 function demoHash() {
   console.log('\n' + DOUBLE_LINE);
-  console.log('🔹 THUẬT TOÁN 4: ĐỐI CHỨNG HÀM BĂM SHA-256 VS MD5');
+  console.log('🔹 THUẬT TOÁN 4: HÀM BĂM AN TOÀN SHA-256 (256-BIT)');
   console.log(DOUBLE_LINE);
-  console.log('📌 Vai trò: Chứng minh tính chất tuyết lở (Avalanche Effect) và đo hiệu năng.\n');
+  console.log('📌 Vai trò: Tạo tóm lược thông điệp 256-bit trước khi ký số ElGamal và chứng minh tính toàn vẹn.\n');
 
   const text1 = 'Hello World';
   const text2 = 'Hello World.'; // Thêm đúng 1 dấu chấm
@@ -182,15 +182,9 @@ function demoHash() {
   console.log(`     SHA-256: ${hash2}`);
   console.log('   => Nhận xét: Chỉ đổi đúng 1 dấu chấm, hơn 50% số bit bị đảo lộn hoàn toàn!');
 
-  console.log('\n2. So sánh độ dài đầu ra giữa SHA-256 và MD5:');
-  console.log(`   • SHA-256 ("${text1}") : ${hash1} (256-bit = 64 Hex) - Kháng va chạm cao`);
-  console.log(`   • MD5    ("${text1}") : ${md5(text1)} (128-bit = 32 Hex) - Đã bị bẻ gãy va chạm`);
-
-  console.log('\n3. Đo tốc độ thực thi (Benchmark 10.000 lần băm):');
-  const speed = compareHashSpeed('Du lieu thu nghiem do an chat app e2ee');
-  console.log(`   • MD5    (10.000 lần) : ${speed.md5_ms.toFixed(2)} ms`);
-  console.log(`   • SHA-256 (10.000 lần) : ${speed.sha256_ms.toFixed(2)} ms`);
-  console.log('   => Kết luận: Cả 2 đều cực nhanh (<0.002 ms/lần), nhưng hệ thống chọn SHA-256 vì chuẩn an toàn NIST.');
+  console.log('\n2. Tóm lược thông điệp chuẩn 256-bit:');
+  console.log(`   • SHA-256 ("${text1}") : ${hash1} (256-bit = 64 ký tự Hex)`);
+  console.log('   => Kết luận: Đầu ra cố định 256-bit, kháng va chạm tuyệt đối theo chuẩn an toàn NIST FIPS 180-4.');
 }
 
 // ============================================================================
@@ -276,7 +270,7 @@ console.log('Chọn thuật toán bạn muốn chạy cho Thầy xem:\n');
 console.log('  [1] Thuật toán AES-256-GCM (Mã hóa, AuthTag, Phát hiện sửa đổi)');
 console.log('  [2] Thuật toán ElGamal 256-bit (Sinh khóa p, g, x, y và Mã hóa khóa)');
 console.log('  [3] Chữ ký số ElGamal + SHA-256 (Ký số, Xác thực, Báo động giả mạo)');
-console.log('  [4] Đối chứng Hàm băm SHA-256 vs MD5 (Hiệu ứng tuyết lở & Benchmark)');
+console.log('  [4] Hàm băm an toàn SHA-256 (Hiệu ứng tuyết lở Avalanche Effect)');
 console.log('  [5] Toàn bộ Hệ Mật Mã Lai Hybrid (Alice gửi -> Server mù -> Bob nhận)');
 console.log('  [A] Chạy LẦN LƯỢT TẤT CẢ từ 1 đến 5');
 console.log('  [0] Thoát');
